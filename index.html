@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>杰隆印刷 × AI 詢價助理 — POC Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0F3460;
+      --navy-light: #1a4a7c;
+      --gold: #C9A84C;
+      --gold-light: #e8c96a;
+      --bg: #F0F4FA;
+      --panel-bg: #FFFFFF;
+      --ai-bubble: #EEF2FF;
+      --ai-border: #C7D2FE;
+      --text-primary: #1E293B;
+      --text-secondary: #64748B;
+      --text-muted: #94A3B8;
+      --success: #10B981;
+      --success-bg: #D1FAE5;
+      --border: #E2E8F0;
+      --radius: 16px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    }
+
+    html, body { height: 100%; font-family: 'Inter', 'PingFang TC', sans-serif; background: var(--bg); color: var(--text-primary); }
+
+    /* ── Layout ── */
+    #app { display: flex; flex-direction: column; height: 100vh; }
+
+    /* ── Header ── */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 24px; background: var(--navy);
+      box-shadow: 0 2px 12px rgba(15,52,96,.3); z-index: 10; flex-shrink: 0;
+    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 40px; height: 40px; background: var(--gold);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: var(--navy);
+    }
+    .brand-name { color: #fff; font-weight: 700; font-size: 16px; }
+    .brand-subtitle { color: rgba(255,255,255,.6); font-size: 12px; margin-top: 1px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .demo-badge {
+      background: rgba(201,168,76,.2); color: var(--gold-light);
+      border: 1px solid rgba(201,168,76,.4); border-radius: 20px;
+      padding: 3px 12px; font-size: 12px; font-weight: 600; letter-spacing: .5px;
+    }
+    .reset-btn {
+      background: rgba(255,255,255,.12); color: rgba(255,255,255,.8);
+      border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
+      padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all .2s;
+    }
+    .reset-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── Main Layout ── */
+    .main-layout {
+      flex: 1; display: flex; overflow: hidden; gap: 0;
+    }
+
+    /* ── Chat Panel ── */
+    .chat-panel {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+      border-right: 1px solid var(--border);
+    }
+    .messages {
+      flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; gap: 16px;
+      scroll-behavior: smooth;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── Message Bubbles ── */
+    .msg { display: flex; gap: 10px; animation: msgIn .3s ease; }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .msg.ai { align-items: flex-start; }
+    .msg.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      background: var(--navy); color: #fff; font-weight: 600;
+    }
+    .avatar.user-av { background: var(--gold); color: var(--navy); }
+
+    .bubble {
+      max-width: 72%; padding: 12px 16px; border-radius: 16px;
+      font-size: 14px; line-height: 1.65; white-space: pre-wrap;
+    }
+    .msg.ai .bubble {
+      background: var(--ai-bubble); border: 1px solid var(--ai-border);
+      border-radius: 4px 16px 16px 16px; color: var(--text-primary);
+    }
+    .msg.user .bubble {
+      background: var(--navy); color: #fff;
+      border-radius: 16px 4px 16px 16px;
+    }
+
+    /* ── Typing Indicator ── */
+    .typing-indicator { display: flex; gap: 5px; padding: 4px 2px; }
+    .typing-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted);
+      animation: typingBounce 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: .2s; }
+    .typing-dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* ── Input Area ── */
+    .input-area {
+      border-top: 1px solid var(--border); padding: 16px 20px;
+      background: var(--panel-bg); flex-shrink: 0; min-height: 72px;
+    }
+
+    .text-input-row { display: flex; gap: 10px; }
+    .text-input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 10px 16px; font-size: 14px; font-family: inherit; outline: none;
+      transition: border-color .2s; color: var(--text-primary); background: #fff;
+    }
+    .text-input:focus { border-color: var(--navy); }
+    .send-btn {
+      padding: 10px 20px; background: var(--navy); color: #fff;
+      border: none; border-radius: 12px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background .2s; white-space: nowrap;
+    }
+    .send-btn:hover { background: var(--navy-light); }
+    .send-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+    /* ── Quick Replies ── */
+    .quickreplies { display: flex; flex-wrap: wrap; gap: 8px; }
+    .qr-btn {
+      padding: 8px 18px; border: 1.5px solid var(--navy); border-radius: 20px;
+      color: var(--navy); background: #fff; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all .2s;
+    }
+    .qr-btn:hover { background: var(--navy); color: #fff; }
+
+    /* ── Material Cards ── */
+    .material-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    .mat-card {
+      border: 2px solid var(--border); border-radius: 12px; padding: 10px 8px;
+      cursor: pointer; transition: all .2s; text-align: center; position: relative;
+    }
+    .mat-card:hover { border-color: var(--navy); transform: translateY(-1px); }
+    .mat-card.selected { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,.2); }
+    .mat-swatch {
+      width: 100%; height: 40px; border-radius: 7px; margin-bottom: 6px;
+      position: relative; overflow: hidden;
+    }
+    .mat-swatch::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.3) 0%, transparent 60%);
+    }
+    .mat-card-name { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+    .mat-card-tag {
+      font-size: 9px; color: var(--text-muted); margin-top: 2px;
+    }
+    .mat-check {
+      position: absolute; top: 5px; right: 5px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--gold); color: #fff; font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0); transition: all .2s;
+    }
+    .mat-card.selected .mat-check { opacity: 1; transform: scale(1); }
+
+    /* Swatch textures */
+    .sw-copper { background: linear-gradient(135deg, #f7f3ee, #e8e2d8, #f0ece4); }
+    .sw-gloss-pearl { background: linear-gradient(135deg, #fff6e8, #ffe9c4, #fff0d5, #ffd9a0, #fff6e8); }
+    .sw-matte-pearl { background: linear-gradient(135deg, #e9e9eb, #d4d4d6, #e2e2e4, #ccc); }
+    .sw-gloss-silver { background: linear-gradient(120deg, #8e8e8e, #e0e0e0, #a8a8a8, #f0f0f0, #909090); }
+    .sw-matte-silver { background: linear-gradient(135deg, #a0a0a4, #bcbcbe, #a4a4a8, #b4b4b6); }
+    .sw-uncoated { background: linear-gradient(135deg, #d9c4a4, #c8b090, #d4bc9a); }
+    .sw-transparent {
+      background: repeating-conic-gradient(#d4d8e0 0% 25%, #f0f4fa 0% 50%) 0 0/16px 16px;
+    }
+    .sw-japanese {
+      background: repeating-linear-gradient(30deg, #f0e2c0 0px, #f0e2c0 2px, #e8d5a8 2px, #e8d5a8 4px);
+    }
+
+    /* ── Order Tracker Panel ── */
+    .tracker-panel {
+      width: 280px; flex-shrink: 0; background: var(--panel-bg);
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .tracker-panel::-webkit-scrollbar { width: 4px; }
+    .tracker-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .tracker-header {
+      padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 12px; flex-shrink: 0;
+    }
+    .tracker-title { font-size: 13px; font-weight: 700; color: var(--navy); letter-spacing: .4px; }
+
+    .progress-row { display: flex; align-items: center; gap: 12px; }
+    .progress-bar-wrap {
+      flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; background: linear-gradient(90deg, var(--navy), var(--gold));
+      border-radius: 3px; transition: width .5s ease; width: 0%;
+    }
+    .progress-pct { font-size: 13px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+
+    .fields-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+
+    .field-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px; border-radius: 10px; transition: background .2s;
+    }
+    .field-item.filled { background: var(--success-bg); }
+    .field-item.active { background: #EEF2FF; }
+
+    .field-dot {
+      width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 11px;
+      border: 2px solid var(--border); color: var(--text-muted); font-weight: 700;
+      transition: all .3s;
+    }
+    .field-item.filled .field-dot {
+      background: var(--success); border-color: var(--success); color: #fff;
+    }
+    .field-item.active .field-dot {
+      background: var(--navy); border-color: var(--navy); color: #fff;
+      animation: pulseDot 1.5s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(15,52,96,.4); }
+      50% { box-shadow: 0 0 0 5px rgba(15,52,96,.0); }
+    }
+
+    .field-info { flex: 1; min-width: 0; }
+    .field-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+    .field-value {
+      font-size: 11px; color: var(--text-secondary); margin-top: 1px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* ── Order Summary Card ── */
+    .summary-card {
+      background: var(--panel-bg); border: 2px solid var(--gold);
+      border-radius: var(--radius); padding: 20px; margin: 4px 0;
+      animation: msgIn .4s ease;
+    }
+    .summary-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .summary-icon { font-size: 24px; }
+    .summary-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .summary-subtitle { font-size: 12px; color: var(--text-secondary); }
+    .summary-row {
+      display: flex; gap: 8px; padding: 5px 0;
+      border-bottom: 1px solid #F1F5F9; font-size: 13px;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: var(--text-secondary); flex-shrink: 0; width: 80px; }
+    .summary-val { font-weight: 600; color: var(--text-primary); }
+    .summary-footer {
+      margin-top: 14px; padding: 12px; background: var(--success-bg);
+      border-radius: 10px; font-size: 13px; color: #065F46; font-weight: 500;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── Mockup Image ── */
+    .mockup-wrap {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border-radius: 14px; padding: 24px; display: flex;
+      justify-content: center; align-items: center; margin: 4px 0;
+      animation: msgIn .4s ease; position: relative; overflow: hidden;
+    }
+    .mockup-wrap::before {
+      content: '模擬效果圖'; position: absolute; top: 10px; right: 12px;
+      font-size: 11px; color: rgba(255,255,255,.5); letter-spacing: .5px;
+    }
+    .mockup-note {
+      position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;
+      font-size: 10px; color: rgba(255,255,255,.35); letter-spacing: .3px;
+    }
+
+    /* ── Returning Customer specific ── */
+    .returning-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(16,185,129,.15); color: #065F46;
+      border: 1px solid rgba(16,185,129,.3); border-radius: 20px;
+      padding: 3px 10px; font-size: 11px; font-weight: 600;
+    }
+
+    /* ── Suggestion Chips ── */
+    .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .sug-chip {
+      padding: 5px 14px; border: 1.5px solid var(--border); border-radius: 16px;
+      background: #F8FAFF; color: var(--text-secondary); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all .15s; font-family: inherit;
+    }
+    .sug-chip:hover { border-color: var(--navy); color: var(--navy); background: #EEF2FF; }
+
+    /* ── Disabled state ── */
+    .input-area.disabled { pointer-events: none; opacity: .5; }
+
+    /* ── Responsive ── */
+    @media (max-width: 760px) {
+      .tracker-panel { display: none; }
+      .material-grid { grid-template-columns: repeat(2, 1fr); }
+      .bubble { max-width: 85%; }
+    }
+    @media (max-width: 480px) {
+      .header { padding: 10px 14px; }
+      .messages { padding: 16px 12px; }
+      .input-area { padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="logo">J</div>
+      <div>
+        <div class="brand-name">杰隆印刷</div>
+        <div class="brand-subtitle">AI 詢價助理</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="reset-btn" onclick="resetDemo()">↺ 重新開始</button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="messages" id="messages"></div>
+      <div class="input-area" id="input-area"></div>
+    </div>
+
+    <!-- Order Tracker Panel -->
+    <div class="tracker-panel">
+      <div class="tracker-header">
+        <div class="tracker-title">📋 訂單資料進度</div>
+        <div class="progress-row">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          <div class="progress-pct" id="progress-pct">0 / 10</div>
+        </div>
+      </div>
+      <div class="fields-list" id="fields-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────
+   Materials (只使用官網 8 種材質)
+───────────────────────────────────────────── */
+const MATERIALS = [
+  { id: 'copper',       name: '銅版紙',     tag: '經濟實惠', swatch: 'sw-copper',
+    desc: '光滑平面，CP值高', pitch: '最基本款，價格實惠，適合一般標籤。' },
+  { id: 'gloss_pearl',  name: '亮面珠光',   tag: '最熱門',   swatch: 'sw-gloss-pearl',
+    desc: '色彩表現佳，防水、撕不破', pitch: '光澤感強，色彩鮮豔，耐水耐刮，保養品、飲料首選。' },
+  { id: 'matte_pearl',  name: '霧面珠光紙', tag: '質感首選', swatch: 'sw-matte-pearl',
+    desc: '消光效果，防水', pitch: '低調霧面質感，不反光，同樣防水，精品與美妝常用。' },
+  { id: 'gloss_silver', name: '亮銀龍',     tag: '鏡面金屬', swatch: 'sw-gloss-silver',
+    desc: '鏡面表面，防水抗刮', pitch: '像不鏽鋼一樣的鏡面銀色，視覺衝擊力強。' },
+  { id: 'matte_silver', name: '反銀龍',     tag: '工業風',   swatch: 'sw-matte-silver',
+    desc: '霧銀表面，防水抗刮', pitch: '低調霧銀，比亮銀龍更沉穩，工業與科技品牌常用。' },
+  { id: 'uncoated',     name: '模造紙',     tag: '自然有機', swatch: 'sw-uncoated',
+    desc: '非塗佈，吸墨強，無光澤', pitch: '自然質感，墨水吸收好，可書寫，有機品牌最愛。' },
+  { id: 'transparent',  name: '透明標籤',   tag: '隱形效果', swatch: 'sw-transparent',
+    desc: '防水抗刮，透明底材', pitch: '貼上去幾乎看不到底材，像直接印在容器上的效果。' },
+  { id: 'japanese',     name: '日本和紙',   tag: '高端精品', swatch: 'sw-japanese',
+    desc: '特殊紙感，紋路多樣', pitch: '獨特紋路和觸感，非常有質感，清酒標、高端禮品首選。' },
+];
+
+/* ─────────────────────────────────────────────
+   Conversation State
+───────────────────────────────────────────── */
+const ORDER_FIELDS = [
+  { key: '品名',    label: '品名 / 用途' },
+  { key: '尺寸',    label: '貼紙尺寸' },
+  { key: '數量',    label: '印製數量' },
+  { key: '材質',    label: '材質選擇' },
+  { key: '亮霧膜',  label: '表面膜別' },
+  { key: '形式',    label: '成捲 / 單張' },
+  { key: '形狀',    label: '形狀 / 軋型' },
+  { key: '交期',    label: '希望交期' },
+  { key: '交貨方式',label: '交貨方式' },
+  { key: '發票',    label: '發票抬頭' },
+];
+
+let state = {};
+
+function initState() {
+  state = {
+    step: 0,
+    mode: 'new',
+    order: {},
+    done: false,
+  };
+}
+
+/* ─────────────────────────────────────────────
+   Conversation Flow (new customer path)
+───────────────────────────────────────────── */
+const FLOW = [
+  // 0: welcome
+  {
+    id: 'welcome',
+    aiMsg: () => '您好！我是杰隆印刷的 AI 詢價助理 🖨️\n\n不管您是第一次訂貼紙，還是老朋友要補印，都可以直接告訴我！\n請問這次是？',
+    inputType: 'quickreply',
+    options: ['第一次詢價', '補印舊款式'],
+    onSelect(val) {
+      if (val === '補印舊款式') {
+        state.mode = 'returning';
+        state.step = 99;
+        handleReturning();
+        return;
+      }
+      state.mode = 'new';
+      advance();
+    },
+  },
+  // 1: product name
+  {
+    id: 'product',
+    aiMsg: () => '太好了！我一步步幫您整理需求。\n\n請問這批貼紙主要是貼在什麼產品上呢？\n（例如：保養品瓶身、酒瓶標籤、食品包裝⋯）',
+    inputType: 'text',
+    placeholder: '例：保養品乳液瓶正標',
+    suggestions: ['保養品瓶標', '酒瓶標籤', '食品標籤', '飲料標籤'],
+    onSubmit(val) {
+      state.order['品名'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 2: size
+  {
+    id: 'size',
+    aiMsg: () => `${state.order['品名']}，好的！記下來了 ✓\n\n貼紙大概是幾公分寬、幾公分高呢？`,
+    inputType: 'text',
+    placeholder: '例：5×8 cm',
+    suggestions: ['5×8 cm', '10×10 cm', '7×5 cm', '3×3 cm（圓形）'],
+    onSubmit(val) {
+      state.order['尺寸'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 3: quantity
+  {
+    id: 'quantity',
+    aiMsg: () => `尺寸 ${state.order['尺寸']}，收到 ✓\n\n這次大概需要印幾張呢？`,
+    inputType: 'text',
+    placeholder: '例：2000 張',
+    suggestions: ['500 張', '1,000 張', '2,000 張', '5,000 張'],
+    onSubmit(val) {
+      state.order['數量'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 4: material
+  {
+    id: 'material',
+    aiMsg: () => `${state.order['數量']}，了解 ✓\n\n接下來請選擇材質。以下是我們提供的 8 種材質，點選卡片可以看說明 👇`,
+    inputType: 'material',
+    onSelect(mat) {
+      state.order['材質'] = mat.name;
+      updateTracker();
+      advance();
+    },
+  },
+  // 5: film
+  {
+    id: 'film',
+    aiMsg: () => {
+      const m = MATERIALS.find(m => m.name === state.order['材質']);
+      return `${state.order['材質']}，很棒的選擇！${m ? m.pitch : ''}\n\n表面要亮膜（光亮反光）還是霧膜（低調質感）呢？`;
+    },
+    inputType: 'quickreply',
+    options: ['亮膜（光亮感）', '霧膜（低調感）', '不需要覆膜'],
+    onSelect(val) {
+      state.order['亮霧膜'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 6: roll or sheet
+  {
+    id: 'form',
+    aiMsg: () => `${state.order['亮霧膜']}，好的 ✓\n\n這批貼紙要裁成一張一張，還是捲成一卷（方便機器自動貼）？`,
+    inputType: 'quickreply',
+    options: ['裁成單張', '捲成一卷'],
+    onSelect(val) {
+      state.order['形式'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 7: shape
+  {
+    id: 'shape',
+    aiMsg: () => `${state.order['形式']}，收到 ✓\n\n貼紙的形狀是長方形、圓形，還是需要特別裁切成產品輪廓的形狀（異形）？`,
+    inputType: 'quickreply',
+    options: ['長方形（最省費用）', '圓形', '異形裁切'],
+    onSelect(val) {
+      state.order['形狀'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 8: delivery date
+  {
+    id: 'delivery_date',
+    aiMsg: () => {
+      const isDiecut = state.order['形狀'] === '異形裁切';
+      return `了解 ✓${isDiecut ? '\n（異形裁切需要製作刀模，費用會另行說明。）' : ''}\n\n您希望什麼時候可以收到貨呢？`;
+    },
+    inputType: 'text',
+    placeholder: '例：兩週後、6月30日前',
+    suggestions: ['一週後', '兩週後', '三週後', '一個月後'],
+    onSubmit(val) {
+      state.order['交期'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 9: delivery method
+  {
+    id: 'delivery_method',
+    aiMsg: () => `${state.order['交期']}，收到 ✓\n\n請問要送貨到府，還是您會自行來取？`,
+    inputType: 'quickreply',
+    options: ['新竹物流送貨', '郵局寄送', '親自來取'],
+    onSelect(val) {
+      state.order['交貨方式'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 10: invoice
+  {
+    id: 'invoice',
+    aiMsg: () => `好的 ✓\n\n最後，請問發票要開給哪個公司行號呢？\n（個人消費請留姓名即可）`,
+    inputType: 'text',
+    placeholder: '例：美麗生活有限公司',
+    suggestions: ['個人消費（免填）'],
+    onSubmit(val) {
+      state.order['發票'] = val;
+      updateTracker();
+      advance();
+    },
+  },
+  // 11: mockup offer
+  {
+    id: 'mockup',
+    aiMsg: () => `太棒了！所有基本資料都收齊了 🎉\n\n在幫您整理報價資訊前——要不要先看看貼紙貼在產品上的 AI 模擬效果圖呢？`,
+    inputType: 'quickreply',
+    options: ['好！幫我看看 ✨', '不用，直接送出報價'],
+    onSelect(val) {
+      if (val.startsWith('好')) {
+        showMockupThenSummary();
+      } else {
+        showSummary();
+      }
+    },
+  },
+];
+
+/* ─────────────────────────────────────────────
+   UI Helpers
+───────────────────────────────────────────── */
+function $id(id) { return document.getElementById(id); }
+
+function scrollBottom() {
+  const m = $id('messages');
+  setTimeout(() => { m.scrollTop = m.scrollHeight; }, 50);
+}
+
+function addAiMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = `
+    <div class="avatar">小傑</div>
+    <div class="bubble">${escHtml(text)}</div>`;
+  $id('messages').appendChild(div);
+  scrollBottom();
+}
+
+function addUserMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `
+    <div class="avatar user-av">我</div>
+    <div class="bubble">${escHtml(text)}</div>`;
+  $id('messages').appendChild(div);
+  scrollBottom();
+}
+
+function addElement(el) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ai';
+  wrap.innerHTML = `<div class="avatar">小傑</div>`;
+  wrap.appendChild(el);
+  $id('messages').appendChild(wrap);
+  scrollBottom();
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\n/g,'<br>');
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'typing-bubble';
+  div.innerHTML = `
+    <div class="avatar">小傑</div>
+    <div class="bubble">
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>`;
+  $id('messages').appendChild(div);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const el = $id('typing-bubble');
+  if (el) el.remove();
+}
+
+function disableInput() {
+  $id('input-area').classList.add('disabled');
+}
+
+function enableInput() {
+  $id('input-area').classList.remove('disabled');
+}
+
+/* ─────────────────────────────────────────────
+   Tracker Panel
+───────────────────────────────────────────── */
+function buildTracker() {
+  const list = $id('fields-list');
+  list.innerHTML = '';
+  ORDER_FIELDS.forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'field-item';
+    item.id = `field-${f.key}`;
+    item.innerHTML = `
+      <div class="field-dot">—</div>
+      <div class="field-info">
+        <div class="field-name">${f.label}</div>
+        <div class="field-value">尚未收集</div>
+      </div>`;
+    list.appendChild(item);
+  });
+  updateTracker();
+}
+
+function updateTracker() {
+  let filled = 0;
+  ORDER_FIELDS.forEach(f => {
+    const item = $id(`field-${f.key}`);
+    if (!item) return;
+    const val = state.order[f.key];
+    if (val) {
+      filled++;
+      item.className = 'field-item filled';
+      item.querySelector('.field-dot').textContent = '✓';
+      item.querySelector('.field-value').textContent = val;
+    }
+  });
+  const pct = Math.round(filled / ORDER_FIELDS.length * 100);
+  $id('progress-bar').style.width = pct + '%';
+  $id('progress-pct').textContent = `${filled} / ${ORDER_FIELDS.length}`;
+}
+
+function setActiveField(key) {
+  ORDER_FIELDS.forEach(f => {
+    const item = $id(`field-${f.key}`);
+    if (!item) return;
+    if (!state.order[f.key]) {
+      item.classList.remove('active');
+      item.querySelector('.field-dot').textContent = '—';
+    }
+  });
+  if (!key) return;
+  const item = $id(`field-${key}`);
+  if (item && !state.order[key]) {
+    item.classList.add('active');
+    item.querySelector('.field-dot').textContent = '…';
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Input Renderers
+───────────────────────────────────────────── */
+function renderInput(step) {
+  const ia = $id('input-area');
+  ia.innerHTML = '';
+  ia.classList.remove('disabled');
+
+  if (step.inputType === 'quickreply') {
+    const wrap = document.createElement('div');
+    wrap.className = 'quickreplies';
+    let selected = false;
+    step.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'qr-btn';
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if (selected) return;
+        selected = true;
+        wrap.querySelectorAll('.qr-btn').forEach(b => b.disabled = true);
+        disableInput();
+        addUserMsg(opt);
+        step.onSelect(opt);
+      };
+      wrap.appendChild(btn);
+    });
+    ia.appendChild(wrap);
+  }
+
+  else if (step.inputType === 'text') {
+    let submitted = false;
+    let inp, btn;
+
+    const doSubmit = (val) => {
+      if (submitted) return;
+      submitted = true;
+      if (inp) inp.disabled = true;
+      if (btn) btn.disabled = true;
+      disableInput();
+      addUserMsg(val);
+      step.onSubmit(val);
+    };
+
+    if (step.suggestions && step.suggestions.length) {
+      const sugWrap = document.createElement('div');
+      sugWrap.className = 'suggestions';
+      step.suggestions.forEach(sug => {
+        const chip = document.createElement('button');
+        chip.className = 'sug-chip';
+        chip.textContent = sug;
+        chip.onclick = () => doSubmit(sug);
+        sugWrap.appendChild(chip);
+      });
+      ia.appendChild(sugWrap);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'text-input-row';
+    inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'text-input';
+    inp.placeholder = step.placeholder || '請輸入...';
+    btn = document.createElement('button');
+    btn.className = 'send-btn';
+    btn.textContent = '送出';
+    const submit = () => {
+      const v = inp.value.trim();
+      if (!v) { inp.focus(); return; }
+      doSubmit(v);
+    };
+    inp.onkeydown = e => { if (e.key === 'Enter') submit(); };
+    btn.onclick = submit;
+    row.appendChild(inp);
+    row.appendChild(btn);
+    ia.appendChild(row);
+    setTimeout(() => inp.focus(), 100);
+  }
+
+  else if (step.inputType === 'material') {
+    const grid = document.createElement('div');
+    grid.className = 'material-grid';
+    MATERIALS.forEach(mat => {
+      const card = document.createElement('div');
+      card.className = 'mat-card';
+      card.dataset.id = mat.id;
+      card.title = mat.pitch;
+      card.innerHTML = `
+        <div class="mat-check">✓</div>
+        <div class="mat-swatch ${mat.swatch}"></div>
+        <div class="mat-card-name">${mat.name}</div>
+        <div class="mat-card-tag">${mat.tag}</div>`;
+      card.onclick = () => {
+        grid.querySelectorAll('.mat-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        setTimeout(() => {
+          disableInput();
+          addUserMsg(mat.name + ' — ' + mat.desc);
+          step.onSelect(mat);
+        }, 300);
+      };
+      grid.appendChild(card);
+    });
+    ia.appendChild(grid);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Advance Conversation
+───────────────────────────────────────────── */
+function advance() {
+  state.step++;
+  if (state.step >= FLOW.length) return;
+  const step = FLOW[state.step];
+  const currentFieldKey = getCurrentFieldKey(state.step);
+  setActiveField(currentFieldKey);
+
+  disableInput();
+  showTyping();
+
+  const delay = 700 + Math.random() * 400;
+  setTimeout(() => {
+    removeTyping();
+    addAiMsg(step.aiMsg());
+    renderInput(step);
+    scrollBottom();
+  }, delay);
+}
+
+function getCurrentFieldKey(stepIdx) {
+  const map = { 1: '品名', 2: '尺寸', 3: '數量', 4: '材質', 5: '亮霧膜', 6: '形式', 7: '形狀', 8: '交期', 9: '交貨方式', 10: '發票' };
+  return map[stepIdx] || null;
+}
+
+/* ─────────────────────────────────────────────
+   Returning Customer Flow
+───────────────────────────────────────────── */
+function handleReturning() {
+  disableInput();
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addAiMsg('好的！請告訴我您的 Email 或電話，我幫您找找之前的訂單記錄 🔍');
+    renderTextInput('例：yourname@email.com', (val) => {
+      addUserMsg(val);
+      disableInput();
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        showReturningResult();
+      }, 1200);
+    });
+  }, 800);
+}
+
+function showReturningResult() {
+  // Simulate finding old order
+  const oldOrder = {
+    '品名': '葛瑪蘭限定版威士忌酒標',
+    '尺寸': '13×9 cm',
+    '數量': '500 張',
+    '材質': '日本和紙',
+    '亮霧膜': '霧膜（低調感）',
+    '形式': '裁成單張',
+    '形狀': '異形裁切',
+    '交期': '（上次）兩週',
+    '交貨方式': '新竹物流送貨',
+    '發票': '○○○有限公司',
+  };
+
+  const badge = `<span class="returning-badge">🔍 找到舊訂單</span>`;
+  const rows = Object.entries(oldOrder).slice(0,5).map(([k,v]) =>
+    `• ${k}：${v}`).join('\n');
+
+  const msg = document.createElement('div');
+  msg.className = 'msg ai';
+  msg.innerHTML = `
+    <div class="avatar">小傑</div>
+    <div class="bubble">
+      ${badge}<br><br>
+      找到了！您上次的訂單記錄：<br><br>
+      <strong>葛瑪蘭限定版威士忌酒標</strong><br>
+      📐 尺寸：13×9 cm<br>
+      🧾 材質：日本和紙 + 霧膜<br>
+      ✂️ 異形裁切 | 裁張出貨<br>
+      📦 新竹物流<br><br>
+      這次是要補印同款嗎？還是有需要調整的部分？
+    </div>`;
+  $id('messages').appendChild(msg);
+  scrollBottom();
+
+  const ia = $id('input-area');
+  ia.innerHTML = '';
+  ia.classList.remove('disabled');
+  const wrap = document.createElement('div');
+  wrap.className = 'quickreplies';
+  let retSelected = false;
+  [{ label: '✅ 補印同款，只改數量', fn: handleReturningQuantity },
+   { label: '✏️ 有要調整的部分', fn: handleReturningModify }
+  ].forEach(({ label, fn }) => {
+    const btn = document.createElement('button');
+    btn.className = 'qr-btn';
+    btn.textContent = label;
+    btn.onclick = () => {
+      if (retSelected) return;
+      retSelected = true;
+      wrap.querySelectorAll('.qr-btn').forEach(b => b.disabled = true);
+      addUserMsg(label);
+      disableInput();
+      fn();
+    };
+    wrap.appendChild(btn);
+  });
+  ia.appendChild(wrap);
+}
+
+function handleReturningQuantity() {
+  // Fill in all old order fields
+  Object.assign(state.order, {
+    '品名': '葛瑪蘭限定版威士忌酒標',
+    '尺寸': '13×9 cm',
+    '材質': '日本和紙',
+    '亮霧膜': '霧膜（低調感）',
+    '形式': '裁成單張',
+    '形狀': '異形裁切',
+    '交貨方式': '新竹物流送貨',
+    '發票': '○○○有限公司',
+  });
+  updateTracker();
+
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addAiMsg('好的！舊資料都幫您帶進來了 ✓\n\n這次要印幾張呢？');
+    renderTextInput('例：1000 張', (val) => {
+      state.order['數量'] = val;
+      updateTracker();
+      addUserMsg(val);
+      disableInput();
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        addAiMsg(`${val} 張，收到 ✓\n\n您希望什麼時候可以收到貨呢？`);
+        setActiveField('交期');
+        renderTextInput('例：三週後', (date) => {
+          state.order['交期'] = date;
+          updateTracker();
+          addUserMsg(date);
+          disableInput();
+          showTyping();
+          setTimeout(() => {
+            removeTyping();
+            addAiMsg('完美！所有資料都確認完畢 🎉\n\n因為您是老客戶，只確認了 2 個問題就完成了！');
+            setTimeout(() => showSummary(), 800);
+          }, 800);
+        });
+      }, 900);
+    });
+  }, 1000);
+}
+
+function handleReturningModify() {
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addAiMsg('好的，哪個部分需要調整呢？\n\n（尺寸、材質、數量、還是其他？）');
+    renderTextInput('請說明調整的部分...', (val) => {
+      addUserMsg(val);
+      disableInput();
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        addAiMsg(`了解！我幫您記錄「${val}」這個修改。\n\n您可以繼續說明其他需要調整的細節，或者告訴我這樣就夠了。`);
+        renderTextInput('還有其他調整嗎？', (v2) => {
+          addUserMsg(v2);
+          disableInput();
+          showTyping();
+          setTimeout(() => { removeTyping(); showSummary(); }, 1000);
+        });
+      }, 900);
+    });
+  }, 900);
+}
+
+/* ─────────────────────────────────────────────
+   Mockup + Summary
+───────────────────────────────────────────── */
+function showMockupThenSummary() {
+  disableInput();
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addAiMsg('幫您生成貼標模擬效果圖，請稍候⋯ ✨');
+    setTimeout(() => {
+      const mockup = buildMockupSVG();
+      addElement(mockup);
+      scrollBottom();
+      setTimeout(() => showSummary(), 800);
+    }, 1400);
+  }, 700);
+}
+
+function buildMockupSVG() {
+  const mat = state.order['材質'] || '';
+  const labelColor = getLabelColor(mat);
+  const gloss = (state.order['亮霧膜'] || '').includes('亮膜');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'mockup-wrap';
+
+  const bottleH = 260, bottleW = 140;
+  wrap.innerHTML = `
+    <svg viewBox="0 0 200 320" width="160" height="260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bottleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#1a3a2a"/>
+          <stop offset="40%" stop-color="#2d6644"/>
+          <stop offset="70%" stop-color="#3a7a52"/>
+          <stop offset="100%" stop-color="#1a3a2a"/>
+        </linearGradient>
+        <linearGradient id="labelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${labelColor.from}"/>
+          <stop offset="100%" stop-color="${labelColor.to}"/>
+        </linearGradient>
+        ${gloss ? `
+        <linearGradient id="glossShine" x1="0%" y1="0%" x2="30%" y2="100%">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.45)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </linearGradient>` : ''}
+        <filter id="shadow">
+          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.4"/>
+        </filter>
+      </defs>
+
+      <!-- Bottle body -->
+      <path d="M 70 105 Q 38 125 34 185 L 34 275 Q 34 295 100 295 Q 166 295 166 275 L 166 185 Q 162 125 130 105 Z"
+            fill="url(#bottleGrad)" filter="url(#shadow)"/>
+      <!-- Bottle shoulder highlight -->
+      <path d="M 70 105 Q 85 112 100 114 Q 115 112 130 105 Q 118 95 100 91 Q 82 95 70 105 Z"
+            fill="rgba(255,255,255,.12)"/>
+      <!-- Bottle neck -->
+      <rect x="84" y="48" width="32" height="60" rx="6" fill="url(#bottleGrad)"/>
+      <!-- Bottle cap -->
+      <rect x="82" y="32" width="36" height="22" rx="4" fill="#1a1a1a"/>
+      <rect x="86" y="36" width="28" height="4" rx="2" fill="rgba(255,255,255,.2)"/>
+
+      <!-- Label -->
+      <rect x="42" y="168" width="116" height="88" rx="4" fill="url(#labelGrad)"/>
+      ${gloss ? `<rect x="42" y="168" width="116" height="88" rx="4" fill="url(#glossShine)"/>` : ''}
+
+      <!-- Label content -->
+      <text x="100" y="195" text-anchor="middle" font-family="serif" font-size="10" fill="rgba(0,0,0,.7)" font-weight="bold">
+        ${(state.order['品名'] || 'LABEL').slice(0, 8)}
+      </text>
+      <line x1="55" y1="200" x2="145" y2="200" stroke="rgba(0,0,0,.2)" stroke-width="0.8"/>
+      <text x="100" y="215" text-anchor="middle" font-family="sans-serif" font-size="7.5" fill="rgba(0,0,0,.5)">
+        ${state.order['尺寸'] || ''}
+      </text>
+      <text x="100" y="228" text-anchor="middle" font-family="sans-serif" font-size="7" fill="rgba(0,0,0,.4)">
+        ${mat}
+      </text>
+
+      <!-- Bottle body highlight -->
+      <path d="M 42 185 Q 38 220 40 265" stroke="rgba(255,255,255,.15)" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+      <!-- Bottle base shadow -->
+      <ellipse cx="100" cy="293" rx="58" ry="8" fill="rgba(0,0,0,.25)"/>
+    </svg>`;
+
+  const note = document.createElement('div');
+  note.className = 'mockup-note';
+  note.textContent = '僅為 AI 模擬效果，實際印刷以打樣為準';
+  wrap.appendChild(note);
+
+  return wrap;
+}
+
+function getLabelColor(mat) {
+  const map = {
+    '銅版紙':     { from: '#f5f0e8', to: '#e8e0d0' },
+    '亮面珠光':   { from: '#fff8e7', to: '#f0d890' },
+    '霧面珠光紙': { from: '#e8e8e8', to: '#d0d0d2' },
+    '亮銀龍':     { from: '#e0e0e4', to: '#a8a8b0' },
+    '反銀龍':     { from: '#b0b0b4', to: '#8a8a8e' },
+    '模造紙':     { from: '#dfd0b0', to: '#c8b890' },
+    '透明標籤':   { from: 'rgba(230,240,255,0.7)', to: 'rgba(210,225,245,0.5)' },
+    '日本和紙':   { from: '#f0e2c0', to: '#d8c89a' },
+  };
+  return map[mat] || { from: '#f5f0e8', to: '#e8e0d0' };
+}
+
+function showSummary() {
+  disableInput();
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addAiMsg('以下是您的需求整理，請確認一下：');
+
+    const card = document.createElement('div');
+    card.className = 'summary-card';
+    const rows = [
+      ['📦 品名', state.order['品名']],
+      ['📐 尺寸', state.order['尺寸']],
+      ['🔢 數量', state.order['數量']],
+      ['🧾 材質', state.order['材質'] + (state.order['亮霧膜'] ? ` + ${state.order['亮霧膜']}` : '')],
+      ['✂️ 形式', `${state.order['形式']} ／ ${state.order['形狀']}`],
+      ['🗓️ 交期', state.order['交期']],
+      ['🚚 交貨', state.order['交貨方式']],
+      ['🧾 發票', state.order['發票']],
+    ].filter(([,v]) => v);
+
+    card.innerHTML = `
+      <div class="summary-header">
+        <div class="summary-icon">📋</div>
+        <div>
+          <div class="summary-title">詢價需求確認單</div>
+          <div class="summary-subtitle">${new Date().toLocaleDateString('zh-TW')} 收件</div>
+        </div>
+      </div>
+      ${rows.map(([l,v]) => `
+        <div class="summary-row">
+          <span class="summary-label">${l}</span>
+          <span class="summary-val">${escHtml(v)}</span>
+        </div>`).join('')}
+      <div class="summary-footer">
+        ✅ 已收到您的需求！業務將在 1 小時內為您提供報價，謝謝！
+      </div>`;
+
+    addElement(card);
+    updateTracker();
+    scrollBottom();
+
+    // Final message
+    setTimeout(() => {
+      addAiMsg('如有任何問題隨時可以在這裡繼續詢問，我都在 😊');
+      const ia = $id('input-area');
+      ia.innerHTML = '';
+      ia.classList.remove('disabled');
+      const btn = document.createElement('button');
+      btn.className = 'qr-btn';
+      btn.textContent = '↺ 再詢一次（重置 Demo）';
+      btn.onclick = resetDemo;
+      ia.appendChild(btn);
+      scrollBottom();
+    }, 1000);
+
+    state.done = true;
+  }, 800);
+}
+
+/* ─────────────────────────────────────────────
+   Text input helper (for inline usage)
+───────────────────────────────────────────── */
+function renderTextInput(placeholder, cb) {
+  const ia = $id('input-area');
+  ia.innerHTML = '';
+  ia.classList.remove('disabled');
+  const row = document.createElement('div');
+  row.className = 'text-input-row';
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = 'text-input';
+  inp.placeholder = placeholder;
+  const btn = document.createElement('button');
+  btn.className = 'send-btn';
+  btn.textContent = '送出';
+  let submitted = false;
+  const submit = () => {
+    if (submitted) return;
+    const v = inp.value.trim();
+    if (!v) { inp.focus(); return; }
+    submitted = true;
+    inp.disabled = true;
+    btn.disabled = true;
+    disableInput();
+    cb(v);
+  };
+  inp.onkeydown = e => { if (e.key === 'Enter') submit(); };
+  btn.onclick = submit;
+  row.appendChild(inp); row.appendChild(btn);
+  ia.appendChild(row);
+  setTimeout(() => inp.focus(), 80);
+}
+
+/* ─────────────────────────────────────────────
+   Init
+───────────────────────────────────────────── */
+function resetDemo() {
+  initState();
+  $id('messages').innerHTML = '';
+  buildTracker();
+  startConversation();
+}
+
+function startConversation() {
+  const step = FLOW[0];
+  setTimeout(() => {
+    addAiMsg(step.aiMsg());
+    renderInput(step);
+  }, 400);
+}
+
+// Boot
+initState();
+buildTracker();
+startConversation();
+</script>
+</body>
+</html>
