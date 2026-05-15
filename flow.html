@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>杰隆印刷 × Asgard AI — 智慧接單流程</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0F3460;
+      --navy2:  #162447;
+      --gold:   #C9A84C;
+      --goldt:  rgba(201,168,76,.15);
+      --odin:   #1e3a8a;   /* Odin — blue */
+      --sindri: #5b21b6;   /* Sindri — purple */
+      --mimir:  #065F46;   /* Mimir — teal */
+      --odin-t:   rgba(30,58,138,.12);
+      --sindri-t: rgba(91,33,182,.12);
+      --mimir-t:  rgba(6,95,70,.12);
+      --bg:     #F0F4FA;
+      --white:  #FFFFFF;
+      --border: #E2E8F0;
+      --text:   #1E293B;
+      --muted:  #64748B;
+      --success:#10B981;
+      --danger: #EF4444;
+      --r:      16px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter','PingFang TC',sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── Page ── */
+    .page { max-width: 1080px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--navy2); color: #fff; margin: 0 -24px;
+      padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-brand { display: flex; align-items: center; gap: 14px; }
+    .logo { width: 42px; height: 42px; background: var(--gold); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: var(--navy2); }
+    .brand-name { font-size: 17px; font-weight: 700; }
+    .brand-sub  { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 2px; }
+    .header-nav a {
+      color: rgba(255,255,255,.7); text-decoration: none; font-size: 13px;
+      padding: 7px 16px; border: 1px solid rgba(255,255,255,.25); border-radius: 8px;
+      transition: all .2s;
+    }
+    .header-nav a:hover { color: #fff; border-color: rgba(255,255,255,.6); }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center; padding: 56px 0 48px;
+    }
+    .hero-badge {
+      display: inline-block; background: var(--goldt); color: var(--gold);
+      border: 1px solid rgba(201,168,76,.35); border-radius: 20px;
+      padding: 4px 16px; font-size: 12px; font-weight: 600; letter-spacing: .5px;
+      margin-bottom: 20px;
+    }
+    .hero h1 { font-size: 36px; font-weight: 800; line-height: 1.2; color: var(--navy2);
+      margin-bottom: 14px; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { font-size: 16px; color: var(--muted); max-width: 560px; margin: 0 auto; line-height: 1.7; }
+
+    /* ── Section ── */
+    .section { margin-top: 64px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 8px;
+    }
+    .section-title { font-size: 24px; font-weight: 800; color: var(--navy2); margin-bottom: 6px; }
+    .section-desc  { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.7; }
+
+    /* ── Tool Cards (3 pillars) ── */
+    .tools-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .tool-card {
+      background: var(--white); border-radius: var(--r); padding: 28px 24px;
+      border: 1.5px solid var(--border); position: relative; overflow: hidden;
+    }
+    .tool-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    }
+    .tool-card.odin::before   { background: var(--odin); }
+    .tool-card.sindri::before { background: var(--sindri); }
+    .tool-card.mimir::before  { background: var(--mimir); }
+
+    .tool-icon {
+      width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 22px; margin-bottom: 14px;
+    }
+    .odin   .tool-icon { background: var(--odin-t); }
+    .sindri .tool-icon { background: var(--sindri-t); }
+    .mimir  .tool-icon { background: var(--mimir-t); }
+
+    .tool-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .odin   .tool-name { color: var(--odin); }
+    .sindri .tool-name { color: var(--sindri); }
+    .mimir  .tool-name { color: var(--mimir); }
+    .tool-role { font-size: 12px; color: var(--muted); margin-bottom: 14px; font-weight: 500; }
+    .tool-desc { font-size: 13px; line-height: 1.7; color: var(--text); }
+    .tool-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tool-tag {
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .odin   .tool-tag { background: var(--odin-t);   color: var(--odin); }
+    .sindri .tool-tag { background: var(--sindri-t); color: var(--sindri); }
+    .mimir  .tool-tag { background: var(--mimir-t);  color: var(--mimir); }
+
+    /* ── Flow Diagram ── */
+    .flow-container { display: grid; grid-template-columns: 1fr 56px 320px; gap: 0; align-items: start; }
+
+    .flow-col-steps { display: flex; flex-direction: column; }
+    .flow-col-line  { display: flex; flex-direction: column; align-items: center; }
+    .flow-col-tools { display: flex; flex-direction: column; }
+
+    .flow-step {
+      background: var(--white); border-radius: var(--r); border: 1.5px solid var(--border);
+      padding: 18px 20px; margin-bottom: 0;
+      transition: border-color .2s;
+    }
+    .flow-step:hover { border-color: var(--gold); }
+
+    .step-num {
+      width: 24px; height: 24px; border-radius: 50%; background: var(--navy2); color: #fff;
+      font-size: 11px; font-weight: 700; display: inline-flex; align-items: center;
+      justify-content: center; margin-bottom: 8px;
+    }
+    .step-title { font-size: 14px; font-weight: 700; color: var(--navy2); margin-bottom: 4px; }
+    .step-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .step-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .step-badge {
+      padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700;
+    }
+    .badge-odin   { background: var(--odin-t);   color: var(--odin); }
+    .badge-sindri { background: var(--sindri-t); color: var(--sindri); }
+    .badge-mimir  { background: var(--mimir-t);  color: var(--mimir); }
+    .badge-ai     { background: rgba(245,158,11,.12); color: #b45309; }
+
+    /* Branch step (new vs returning) */
+    .flow-branch {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0;
+    }
+    .flow-branch .flow-step { border-style: dashed; }
+
+    /* Connectors */
+    .connector {
+      flex: 1; display: flex; flex-direction: column; align-items: center; min-height: 24px;
+    }
+    .conn-line { width: 2px; flex: 1; background: var(--border); min-height: 20px; }
+    .conn-arrow { font-size: 14px; color: var(--gold); line-height: 1; }
+
+    /* Row wrapper for step + connector */
+    .flow-row { display: contents; }
+    .flow-row-step   { padding-bottom: 0; }
+    .flow-conn-cell  { display: flex; align-items: center; justify-content: center; }
+    .flow-tools-cell { display: flex; align-items: flex-start; }
+
+    /* Inline flow layout helper */
+    .flow-item {
+      display: grid; grid-template-columns: 1fr 48px 300px;
+      gap: 0; margin-bottom: 4px; align-items: stretch;
+    }
+    .flow-item-step  { }
+    .flow-item-conn  { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .flow-item-tool  { display: flex; align-items: center; padding-left: 8px; }
+
+    .conn-vert { display: flex; flex-direction: column; align-items: center; height: 32px; }
+    .conn-vert .line { width: 2px; flex: 1; background: var(--border); }
+    .conn-vert .dot  { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+
+    /* Right-side tool annotation */
+    .tool-anno {
+      background: var(--white); border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; font-size: 12px; width: 100%;
+    }
+    .tool-anno-title { font-weight: 700; margin-bottom: 4px; font-size: 12px; }
+    .tool-anno-desc  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* Branch visual */
+    .branch-indicator {
+      border-radius: 20px; font-size: 11px; font-weight: 600;
+      padding: 3px 12px; display: inline-block; margin-bottom: 6px;
+    }
+    .branch-new { background: rgba(14,165,233,.12); color: #0369a1; }
+    .branch-ret { background: rgba(16,185,129,.12); color: #065F46; }
+
+    /* ── Full Flow visual ── */
+    .full-flow { display: flex; gap: 24px; }
+    .full-flow-left  { flex: 1; }
+    .full-flow-right { width: 280px; flex-shrink: 0; }
+
+    .flow-timeline { position: relative; }
+    .flow-timeline::before {
+      content: ''; position: absolute; left: 19px; top: 20px; bottom: 20px;
+      width: 2px; background: linear-gradient(to bottom, var(--navy2), var(--gold), var(--success));
+    }
+
+    .ft-step {
+      display: flex; gap: 16px; margin-bottom: 8px; position: relative;
+    }
+    .ft-circle {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; z-index: 1; border: 3px solid var(--bg);
+    }
+    .ft-circle.c-customer { background: #0ea5e9; color: #fff; }
+    .ft-circle.c-odin     { background: var(--odin); color: #fff; }
+    .ft-circle.c-sindri   { background: var(--sindri); color: #fff; }
+    .ft-circle.c-mimir    { background: var(--mimir); color: #fff; }
+    .ft-circle.c-ai       { background: #d97706; color: #fff; }
+    .ft-circle.c-end      { background: var(--success); color: #fff; }
+
+    .ft-content {
+      background: var(--white); border-radius: 12px; border: 1.5px solid var(--border);
+      padding: 14px 16px; flex: 1; margin-bottom: 4px;
+    }
+    .ft-content:hover { border-color: var(--gold); }
+    .ft-title { font-size: 13px; font-weight: 700; color: var(--navy2); margin-bottom: 3px; }
+    .ft-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .ft-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+
+    .ft-spacer { height: 8px; margin-left: 19px; border-left: 2px solid var(--border); }
+
+    /* Branch */
+    .ft-branch-row { display: flex; gap: 10px; margin-left: 56px; margin-bottom: 8px; }
+    .ft-branch-card {
+      flex: 1; background: var(--white); border-radius: 12px; padding: 12px 14px;
+      border: 1.5px dashed var(--border); font-size: 12px;
+    }
+    .ft-branch-card:hover { border-color: var(--gold); }
+    .ft-branch-label { font-weight: 700; font-size: 11px; margin-bottom: 4px; }
+    .ft-branch-text  { color: var(--muted); line-height: 1.5; }
+
+    /* Right side: Tool legend */
+    .tool-legend { position: sticky; top: 20px; }
+    .legend-card {
+      background: var(--white); border-radius: var(--r); border: 1.5px solid var(--border);
+      padding: 20px; margin-bottom: 16px;
+    }
+    .legend-title { font-size: 13px; font-weight: 800; margin-bottom: 14px; color: var(--navy2); }
+    .legend-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .legend-dot {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+    }
+    .legend-item-text strong { font-size: 12px; display: block; font-weight: 700; }
+    .legend-item-text span   { font-size: 11px; color: var(--muted); }
+    .dot-customer { background: #0ea5e9; }
+    .dot-odin     { background: var(--odin); }
+    .dot-sindri   { background: var(--sindri); }
+    .dot-mimir    { background: var(--mimir); }
+    .dot-ai       { background: #d97706; }
+    .dot-end      { background: var(--success); }
+
+    /* ── Before / After ── */
+    .comparison { display: grid; grid-template-columns: 1fr 64px 1fr; gap: 0; align-items: start; }
+    .cmp-col { }
+    .cmp-vs {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: var(--muted); padding-top: 80px;
+    }
+    .cmp-header {
+      border-radius: 12px 12px 0 0; padding: 14px 20px; font-size: 14px; font-weight: 700;
+      text-align: center;
+    }
+    .cmp-before .cmp-header { background: #FEF2F2; color: #991B1B; }
+    .cmp-after  .cmp-header { background: #D1FAE5; color: #065F46; }
+
+    .cmp-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      background: var(--white); font-size: 13px;
+    }
+    .cmp-row:last-child { border-bottom: none; border-radius: 0 0 12px 12px; }
+    .cmp-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+    .cmp-text-wrap { }
+    .cmp-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .cmp-value { font-size: 13px; font-weight: 600; margin-top: 1px; }
+    .cmp-before .cmp-value { color: #DC2626; }
+    .cmp-after  .cmp-value { color: #059669; }
+
+    /* ── Metrics ── */
+    .metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+    .metric-card {
+      background: var(--white); border-radius: var(--r); border: 1.5px solid var(--border);
+      padding: 24px 20px; text-align: center;
+    }
+    .metric-num {
+      font-size: 36px; font-weight: 800; color: var(--navy2);
+      line-height: 1; margin-bottom: 6px;
+    }
+    .metric-num span { font-size: 20px; }
+    .metric-label { font-size: 13px; color: var(--muted); font-weight: 500; line-height: 1.4; }
+    .metric-tag {
+      display: inline-block; margin-top: 8px; padding: 2px 10px;
+      background: var(--goldt); color: var(--gold); border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      margin-top: 72px; padding-top: 32px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; color: var(--muted);
+    }
+    .footer-links { display: flex; gap: 12px; }
+    .footer-links a {
+      color: var(--navy); text-decoration: none; font-weight: 600;
+      padding: 8px 18px; border: 1.5px solid var(--navy); border-radius: 8px;
+      font-size: 13px; transition: all .2s;
+    }
+    .footer-links a:hover { background: var(--navy); color: #fff; }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .tools-grid { grid-template-columns: 1fr; }
+      .full-flow  { flex-direction: column; }
+      .full-flow-right { width: 100%; }
+      .tool-legend { position: static; }
+      .metrics-grid { grid-template-columns: repeat(2,1fr); }
+      .comparison { grid-template-columns: 1fr; }
+      .cmp-vs { display: none; }
+      .hero h1 { font-size: 26px; }
+      .ft-branch-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-brand">
+    <div class="logo">J</div>
+    <div>
+      <div class="brand-name">杰隆印刷 × Asgard AI</div>
+      <div class="brand-sub">智慧接單系統 — 流程架構</div>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <a href="index.html">← 回到 Demo</a>
+  </nav>
+</header>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">AI 接單解決方案</div>
+    <h1>讓 AI 接住每一個詢單<br><span>24/7 自動引導，15 分鐘完成報價</span></h1>
+    <p>以 Asgard AI 三大引擎為核心，將散客詢價流程從「0.5～3 天的來回溝通」壓縮至即時完成，並向後整合訂單追蹤系統。</p>
+  </div>
+
+  <!-- Section 1: Three Tools -->
+  <section class="section">
+    <div class="section-label">核心技術</div>
+    <div class="section-title">三大 AI 引擎，各司其職</div>
+    <div class="section-desc">Asgard AI 平台的三個核心模組覆蓋「流程設計 → 智能執行 → 資料整合」完整鏈路。</div>
+    <div class="tools-grid">
+      <div class="tool-card odin">
+        <div class="tool-icon">🔧</div>
+        <div class="tool-name">Odin</div>
+        <div class="tool-role">零程式碼 AI 工作流引擎</div>
+        <div class="tool-desc">設計整個詢價自動化工作流。負責 Webhook 統一入口、意圖路由、條件分支、Email 通知與最終訂單輸出。無需工程師介入即可調整流程邏輯。</div>
+        <div class="tool-tags">
+          <span class="tool-tag">Webhook 入口</span>
+          <span class="tool-tag">意圖路由</span>
+          <span class="tool-tag">條件分支</span>
+          <span class="tool-tag">Email 通知</span>
+          <span class="tool-tag">訂單輸出</span>
+        </div>
+      </div>
+      <div class="tool-card sindri">
+        <div class="tool-icon">🤖</div>
+        <div class="tool-name">Sindri</div>
+        <div class="tool-role">Multi-Agent 智能執行引擎</div>
+        <div class="tool-desc">部署 8 個專職 AI Agent，分工負責意圖識別、欄位收集、材質對應、圖檔解析、模擬圖生成、情緒偵測與訂單整合。Agent 間自動協作，無縫銜接。</div>
+        <div class="tool-tags">
+          <span class="tool-tag">欄位缺口偵測</span>
+          <span class="tool-tag">材質智能對應</span>
+          <span class="tool-tag">圖檔解析</span>
+          <span class="tool-tag">模擬圖生成</span>
+          <span class="tool-tag">情緒偵測</span>
+        </div>
+      </div>
+      <div class="tool-card mimir">
+        <div class="tool-icon">📊</div>
+        <div class="tool-name">Mimir</div>
+        <div class="tool-role">資料整合與洞察核心</div>
+        <div class="tool-desc">整合現有 Excel 訂單追蹤表、建立客戶資料庫，並以 RAG 向量技術建構材質知識庫與 FAQ。舊客歷史訂單一鍵調取，對話紀錄完整保存供後續分析。</div>
+        <div class="tool-tags">
+          <span class="tool-tag">訂單資料庫</span>
+          <span class="tool-tag">客戶識別</span>
+          <span class="tool-tag">知識庫 RAG</span>
+          <span class="tool-tag">對話紀錄</span>
+          <span class="tool-tag">Excel 整合</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Flow -->
+  <section class="section">
+    <div class="section-label">完整流程</div>
+    <div class="section-title">從詢問到訂單成立</div>
+    <div class="section-desc">AI 全程引導，不漏接任何一個詢單。以下為完整接單流程，標示各步驟由哪個 Asgard AI 模組負責執行。</div>
+
+    <div class="full-flow">
+      <!-- Timeline -->
+      <div class="full-flow-left">
+        <div class="flow-timeline">
+
+          <!-- Step 1 -->
+          <div class="ft-step">
+            <div class="ft-circle c-customer">入</div>
+            <div class="ft-content">
+              <div class="ft-title">客戶透過 LINE / 網頁發出詢問</div>
+              <div class="ft-desc">不限管道、不限時間。散客發出任何形式的詢問訊息（報價、補印、規格詢問均可），系統 24/7 即時接線，不再因為非上班時間而漏接。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-odin">Odin · Webhook 入口</span>
+                <span class="step-badge badge-sindri">Sindri · Session 建立</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 2 -->
+          <div class="ft-step">
+            <div class="ft-circle c-odin">分</div>
+            <div class="ft-content">
+              <div class="ft-title">意圖識別 — 詢價 / 補印 / 訂單查詢</div>
+              <div class="ft-desc">AI 自動判斷客戶意圖，分流至對應的處理路徑。無論客戶說「我要印貼紙」或「上次那個可以再來一次嗎」，都能正確識別並引導。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-odin">Odin · 路由器</span>
+                <span class="step-badge badge-sindri">Sindri · Intake Agent</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Branch -->
+          <div class="ft-branch-row">
+            <div class="ft-branch-card">
+              <div class="ft-branch-label" style="color:#0369a1;">🆕 新客詢價</div>
+              <div class="ft-branch-text">建立新 Session，從第一個欄位開始引導收集。AI 全程使用白話語言，不出現印刷術語。</div>
+            </div>
+            <div class="ft-branch-card">
+              <div class="ft-branch-label" style="color:#065F46;">🔄 舊客補印</div>
+              <div class="ft-branch-text">以 Email / 電話比對歷史訂單，自動帶入所有舊規格，只確認差異欄位，<strong>最快 2 問完成</strong>。</div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 3 -->
+          <div class="ft-step">
+            <div class="ft-circle c-sindri">收</div>
+            <div class="ft-content">
+              <div class="ft-title">欄位缺口偵測 — 白話引導收集規格</div>
+              <div class="ft-desc">系統核心：AI 持續追蹤 14 個必填欄位的收集狀態，每輪對話後判斷哪個欄位最重要、還缺什麼，自動生成下一個白話追問，不重複、不遺漏。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-sindri">Sindri · Field Collector Agent</span>
+                <span class="step-badge badge-mimir">Mimir · 知識庫 RAG</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 4 -->
+          <div class="ft-step">
+            <div class="ft-circle c-sindri">材</div>
+            <div class="ft-content">
+              <div class="ft-title">材質智能對應 — 限定官網 8 種材質</div>
+              <div class="ft-desc">客戶說「要那種有金屬感的」，AI 自動對應至「亮銀龍」或「反銀龍」並附上說明。所有材質選項嚴格限定為官網提供的 8 種，確保可生產性，不接受超出範圍的需求。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-sindri">Sindri · Material Advisor Agent</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 5 -->
+          <div class="ft-step">
+            <div class="ft-circle c-ai">圖</div>
+            <div class="ft-content">
+              <div class="ft-title">設計稿解析 + AI 貼標模擬圖生成</div>
+              <div class="ft-desc">客戶上傳設計稿，AI 自動解析色數與特殊工藝（燙金、打凸等）。同時依據材質、容器類型與使用場景，生成貼標於實際產品上的情境模擬圖供客戶預覽。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-ai">LLM Vision · 圖檔解析</span>
+                <span class="step-badge badge-sindri">Sindri · Mockup Generator</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 6 -->
+          <div class="ft-step">
+            <div class="ft-circle c-sindri">情</div>
+            <div class="ft-content">
+              <div class="ft-title">情緒偵測 — 負面累積自動轉真人</div>
+              <div class="ft-desc">AI 持續偵測對話中的情緒訊號。當客戶出現連續不滿、要求議價或超出 AI 知識範圍時，自動觸發通知，將完整對話紀錄交給業務人員接手——客戶無需重複說一遍。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-sindri">Sindri · Emotion Detector</span>
+                <span class="step-badge badge-odin">Odin · 轉接 Email 通知</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 7 -->
+          <div class="ft-step">
+            <div class="ft-circle c-sindri">單</div>
+            <div class="ft-content">
+              <div class="ft-title">訂單草稿整合確認</div>
+              <div class="ft-desc">所有欄位收集完成後，AI 匯整成結構化訂單草稿，以視覺化方式呈現給客戶確認，包含品名、尺寸、數量、材質、交期等所有必要資訊。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-sindri">Sindri · Order Summary Agent</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 8 -->
+          <div class="ft-step">
+            <div class="ft-circle c-mimir">存</div>
+            <div class="ft-content">
+              <div class="ft-title">寫入資料庫 + 即時通知業務</div>
+              <div class="ft-desc">訂單草稿自動寫入 Mimir 資料庫，同步觸發 Email / LINE 通知業務人員。業務收到完整的結構化資料，無需再次電話確認規格，直接進行報價。</div>
+              <div class="ft-badges">
+                <span class="step-badge badge-mimir">Mimir · 訂單 DB 寫入</span>
+                <span class="step-badge badge-odin">Odin · 業務通知</span>
+              </div>
+            </div>
+          </div>
+          <div class="ft-spacer"></div>
+
+          <!-- Step 9: End -->
+          <div class="ft-step">
+            <div class="ft-circle c-end">✓</div>
+            <div class="ft-content">
+              <div class="ft-title">業務確認報價 → 訂單正式成立</div>
+              <div class="ft-desc">業務人員依據完整的訂單草稿進行報價確認。標準化規格的訂單未來可由 AI 直接完成報價，僅在金額超過門檻或規格超出範圍時才需人工介入。</div>
+              <div class="ft-badges">
+                <span class="step-badge" style="background:rgba(16,185,129,.12);color:#065F46;">✅ 訂單成立</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.flow-timeline -->
+      </div><!-- /.full-flow-left -->
+
+      <!-- Right: Legend + Key Points -->
+      <div class="full-flow-right">
+        <div class="tool-legend">
+
+          <div class="legend-card">
+            <div class="legend-title">🗂 流程顏色說明</div>
+            <div class="legend-item">
+              <div class="legend-dot dot-customer"></div>
+              <div class="legend-item-text">
+                <strong>客戶行為</strong>
+                <span>用戶主動觸發的行為或訊息</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot dot-odin"></div>
+              <div class="legend-item-text">
+                <strong>Odin — 工作流層</strong>
+                <span>路由、分流、通知、流程控制</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot dot-sindri"></div>
+              <div class="legend-item-text">
+                <strong>Sindri — Agent 執行層</strong>
+                <span>AI 對話、欄位收集、智能判斷</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot dot-mimir"></div>
+              <div class="legend-item-text">
+                <strong>Mimir — 資料整合層</strong>
+                <span>資料庫存取、知識庫查詢</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot dot-ai"></div>
+              <div class="legend-item-text">
+                <strong>AI 生成能力</strong>
+                <span>視覺解析、圖像生成</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot dot-end"></div>
+              <div class="legend-item-text">
+                <strong>訂單成立</strong>
+                <span>流程完成，進入生產排程</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend-card">
+            <div class="legend-title">⚡ 關鍵優勢亮點</div>
+            <div style="font-size:13px;line-height:2;color:var(--text);">
+              <div>✅ <strong>不漏接</strong> — 24/7 即時回應</div>
+              <div>✅ <strong>不說術語</strong> — 白話引導，零門檻</div>
+              <div>✅ <strong>不重複問</strong> — 舊客歷史自動帶入</div>
+              <div>✅ <strong>不超出範圍</strong> — 材質限定官網 8 種</div>
+              <div>✅ <strong>不漏填欄位</strong> — AI 即時追蹤 14 項</div>
+            </div>
+          </div>
+
+          <div class="legend-card">
+            <div class="legend-title">🛡 安全機制</div>
+            <div style="font-size:12px;line-height:1.8;color:var(--muted);">
+              <div>・ 個資欄位加密儲存</div>
+              <div>・ 情緒偵測觸發人工接管</div>
+              <div>・ 超出材質範圍自動轉介</div>
+              <div>・ 高金額訂單人工確認</div>
+              <div>・ 完整對話紀錄可稽查</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /.full-flow -->
+  </section>
+
+  <!-- Section 3: Before vs After -->
+  <section class="section">
+    <div class="section-label">導入效益</div>
+    <div class="section-title">導入前 vs 導入後</div>
+    <div class="section-desc">從客戶體驗與業務效率兩個維度，看 AI 接單系統帶來的具體改變。</div>
+
+    <div class="comparison">
+      <div class="cmp-col cmp-before">
+        <div class="cmp-header">❌ 導入前（現況）</div>
+        <div class="cmp-row">
+          <div class="cmp-icon">⏱</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">詢價到完成規格確認</div>
+            <div class="cmp-value">快則半天、慢則超過 3 天</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">🌙</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">非上班時間接單</div>
+            <div class="cmp-value">完全無法接線，訂單流失</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">🔄</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">規格確認溝通</div>
+            <div class="cmp-value">多次來回，術語解釋費時</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">👤</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">舊客補印效率</div>
+            <div class="cmp-value">需重新確認全部規格</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">🌐</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">跨國 / 跨時區客戶</div>
+            <div class="cmp-value">無法服務，商機流失</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">📋</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">業務人力投入</div>
+            <div class="cmp-value">大量時間在重複資訊收集</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmp-vs">VS</div>
+
+      <div class="cmp-col cmp-after">
+        <div class="cmp-header">✅ 導入後（目標）</div>
+        <div class="cmp-row">
+          <div class="cmp-icon">⚡</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">詢價到完成規格確認</div>
+            <div class="cmp-value">15 分鐘內，AI 全程引導完成</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">🤖</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">非上班時間接單</div>
+            <div class="cmp-value">24/7 AI 即時接線，零漏單</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">💬</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">規格確認溝通</div>
+            <div class="cmp-value">白話引導，≤ 15 輪完成全部欄位</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">🔁</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">舊客補印效率</div>
+            <div class="cmp-value">歷史自動帶入，2～3 問完成</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">🌏</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">跨國 / 跨時區客戶</div>
+            <div class="cmp-value">多語言支援，英文詢價自動處理</div>
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-icon">📈</div>
+          <div class="cmp-text-wrap">
+            <div class="cmp-label">業務人力投入</div>
+            <div class="cmp-value">釋放 60%+ 重複工作，專注議價</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Metrics -->
+  <section class="section">
+    <div class="section-label">預期指標</div>
+    <div class="section-title">量化效益預估</div>
+    <div class="section-desc">基於 Asgard AI 平台既有案例與杰隆印刷需求分析所推估的改善幅度。</div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-num">95<span>%</span></div>
+        <div class="metric-label">詢價確認時間<br>縮短幅度</div>
+        <div class="metric-tag">3天 → 15分鐘</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">24<span>/7</span></div>
+        <div class="metric-label">全天候自動<br>接單覆蓋</div>
+        <div class="metric-tag">新增能力</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">60<span>%+</span></div>
+        <div class="metric-label">業務人力<br>重複工作釋放</div>
+        <div class="metric-tag">效率提升</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">3<span>問</span></div>
+        <div class="metric-label">舊客補印<br>最少問答輪數</div>
+        <div class="metric-tag">回頭客體驗</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="site-footer">
+    <div>© 2026 Asgard AI — 杰隆印刷 AI 接單系統 POC 提案</div>
+    <div class="footer-links">
+      <a href="index.html">互動 Demo →</a>
+    </div>
+  </div>
+
+</div><!-- /.page -->
+</body>
+</html>
