@@ -10,24 +10,25 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy:   #0F3460;
-      --navy2:  #162447;
-      --gold:   #C9A84C;
-      --goldt:  rgba(201,168,76,.15);
-      --odin:   #1e3a8a;   /* Odin — blue */
-      --sindri: #5b21b6;   /* Sindri — purple */
-      --mimir:  #065F46;   /* Mimir — teal */
-      --odin-t:   rgba(30,58,138,.12);
-      --sindri-t: rgba(91,33,182,.12);
-      --mimir-t:  rgba(6,95,70,.12);
-      --bg:     #F0F4FA;
-      --white:  #FFFFFF;
-      --border: #E2E8F0;
-      --text:   #1E293B;
-      --muted:  #64748B;
-      --success:#10B981;
-      --danger: #EF4444;
-      --r:      16px;
+      /* Asgard AI palette — mirrors design.asgard-ai.com */
+      --navy:    #1E3A8A;        /* AsBlueDark (blue-900) */
+      --navy2:   #0F172A;        /* slate-900 — header bg */
+      --gold:    #2563EB;        /* AsBlue (blue-600) — primary accent */
+      --goldt:   rgba(37,99,235,.12);
+      --odin:    #2563EB;        /* Odin uses Asgard blue (Phase 1 primary) */
+      --sindri:  #5b21b6;        /* Sindri — purple (Phase 2) */
+      --mimir:   #065F46;        /* Mimir — teal (Phase 2) */
+      --odin-t:    rgba(37,99,235,.12);
+      --sindri-t:  rgba(91,33,182,.12);
+      --mimir-t:   rgba(6,95,70,.12);
+      --bg:      #F8FAFC;
+      --white:   #FFFFFF;
+      --border:  #E2E8F0;
+      --text:    #0F172A;
+      --muted:   #64748B;
+      --success: #10B981;
+      --danger:  #EF4444;
+      --r:       16px;
     }
 
     html { scroll-behavior: smooth; }
@@ -42,9 +43,10 @@
       padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
     }
     .header-brand { display: flex; align-items: center; gap: 14px; }
-    .logo { width: 42px; height: 42px; background: var(--gold); border-radius: 10px;
+    .logo { width: 42px; height: 42px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px; font-weight: 800; color: var(--navy2); }
+      background: rgba(255,255,255,.06); border-radius: 10px; }
+    .logo svg { width: 30px; height: 30px; display: block; }
     .brand-name { font-size: 17px; font-weight: 700; }
     .brand-sub  { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 2px; }
     .header-nav a {
@@ -358,10 +360,16 @@
 <!-- Header -->
 <header class="site-header">
   <div class="header-brand">
-    <div class="logo">J</div>
+    <div class="logo" title="Asgard AI">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 15 L85 75 L15 75 Z" fill="#60A5FA"/>
+        <path d="M50 30 L70 65 L30 65 Z" fill="#93C5FD" opacity=".7"/>
+        <circle cx="50" cy="55" r="6" fill="#DBEAFE"/>
+      </svg>
+    </div>
     <div>
-      <div class="brand-name">杰隆印刷 × Asgard AI</div>
-      <div class="brand-sub">智慧接單系統 — 流程架構</div>
+      <div class="brand-name">Asgard AI　×　杰隆印刷</div>
+      <div class="brand-sub">AI 自動接單系統 — 流程架構</div>
     </div>
   </div>
   <nav class="header-nav">
@@ -373,7 +381,7 @@
 
   <!-- Hero -->
   <div class="hero">
-    <div class="hero-badge">AI 接單解決方案</div>
+    <div class="hero-badge">從洞察到執行的智慧閉環</div>
     <h1>讓 AI 接住每一個詢單<br><span>24/7 自動引導，15 分鐘完成報價</span></h1>
     <p>以 Asgard AI 的 <strong>Odin 工作流引擎</strong> 為核心，搭配客製化前後端與基本資料層，將散客詢價流程從「0.5～3 天的來回溝通」壓縮至即時完成。</p>
   </div>
