@@ -1,0 +1,24 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#DBEAFE"
+    primaryTextColor: "#1E3A8A"
+    primaryBorderColor: "#1E3A8A"
+    lineColor: "#64748B"
+    fontFamily: "PingFang TC, Microsoft JhengHei, sans-serif"
+---
+flowchart TD
+    A["Webhook 入口"] --> B["Session 建立 / 舊客比對"]
+    B --> C["LLM Router<br/>意圖分類 (詢價 / 追蹤 / 補印 / 閒聊)"]
+    C --> D["Odin LLM 節點<br/>欄位缺口偵測 → 白話追問生成"]
+    D --> E["圖檔上傳節點<br/>LLM Vision 解析 → 色數建議"]
+    E --> F["Image Gen 節點<br/>貼標模擬圖生成"]
+    F --> G{"條件分支"}
+    G -->|"完成"| H["訂單 JSON 輸出<br/>寫入客製化 DB + Email 通知"]
+    G -->|"觸發轉接"| I["人工接管通知"]
+    G -->|"繼續追問"| D
+
+    style A fill:#FEF3C7,stroke:#C9A84C
+    style H fill:#D1FAE5,stroke:#059669,color:#065F46
+    style I fill:#FEE2E2,stroke:#B91C1C,color:#7F1D1D

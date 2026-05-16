@@ -1,0 +1,28 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#EEF2FF"
+    primaryTextColor: "#1E293B"
+    primaryBorderColor: "#1E3A8A"
+    lineColor: "#64748B"
+    fontFamily: "PingFang TC, Microsoft JhengHei, sans-serif"
+---
+flowchart TD
+    A["客戶白話詢問"] --> B
+    subgraph PHASE1 ["Phase 1 — 本次 POC"]
+      direction TB
+      B["Odin Workflow<br/>對話編排 + 意圖識別節點 + 欄位缺口追蹤"]
+      C["客製化後端<br/>圖檔解析 / 模擬圖生成 / 舊客比對 / 情緒通知"]
+      D["基本 DB<br/>訂單草稿 / 客戶資料 / 對話紀錄"]
+      B --> C --> D
+    end
+    D --> E["訂單草稿"]
+    E --> F["人工確認"]
+    F --> G["正式成立"]
+
+    style A fill:#DBEAFE,stroke:#1E40AF
+    style B fill:#DBEAFE,stroke:#1E3A8A,color:#1E3A8A
+    style C fill:#E2E8F0,stroke:#475569,color:#334155
+    style D fill:#FEF3C7,stroke:#C9A84C,color:#92400E
+    style G fill:#D1FAE5,stroke:#059669,color:#065F46

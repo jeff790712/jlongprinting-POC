@@ -1,0 +1,36 @@
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: "PingFang TC, Microsoft JhengHei, sans-serif"
+    sectionBkgColor: "#EEF2FF"
+    altSectionBkgColor: "#FEF3C7"
+    cScaleLabel0: "#1E3A8A"
+---
+gantt
+    title POC 導入時程（4-6 週）
+    dateFormat  YYYY-MM-DD
+    axisFormat  W%V
+
+    section Phase A — 基礎架構
+    雲端環境規劃與建置          :a1, 2026-05-19, 3d
+    DB Schema 設計與建置        :a2, after a1, 4d
+    AP Server 部署              :a3, 2026-05-22, 3d
+    CI/CD 與基本監控初始化      :a4, after a3, 2d
+
+    section Phase B — 核心對話流
+    Odin 工作流設計             :b1, 2026-05-26, 4d
+    對話 Prompt 與欄位偵測      :b2, after b1, 3d
+    Chatbot 前端 UI 開發        :b3, 2026-05-26, 5d
+    Session + 訂單草稿 API      :b4, after b3, 3d
+
+    section Phase C — 進階功能 + UAT
+    圖檔上傳解析 / 模擬圖串接   :c1, 2026-06-09, 4d
+    舊客識別 / 情緒偵測通知     :c2, after c1, 3d
+    UAT 支援 + 上線部署         :c3, 2026-06-16, 4d
+    教育訓練與文件交付          :c4, after c3, 2d
+
+    section 里程碑
+    POC 啟動 :milestone, m1, 2026-05-19, 0d
+    對話流可運行 :milestone, m2, 2026-06-05, 0d
+    正式上線 :milestone, m3, 2026-06-26, 0d
