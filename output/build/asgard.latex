@@ -1,9 +1,9 @@
-% Asgard-AI styled LaTeX template for pandoc
-% Inspired by asgard-ai.com — navy + gold + generous whitespace.
+% Asgard AI styled LaTeX template for pandoc
+% Mirrors design.asgard-ai.com — blue triangle logo + tailwind-blue palette.
 
 \documentclass[10pt,a4paper]{article}
 
-%% ── Geometry (tighter to reduce page count) ──────────────────────────
+%% ── Geometry ─────────────────────────────────────────────────────────
 \usepackage[a4paper, top=2.0cm, bottom=2.0cm, left=2.0cm, right=2.0cm, headheight=1.2cm, headsep=0.45cm, footskip=1.0cm]{geometry}
 
 %% ── Fonts (xelatex + CJK) ────────────────────────────────────────────
@@ -12,32 +12,37 @@
 \setmainfont{Helvetica Neue}
 \setCJKmainfont[BoldFont={PingFang TC Semibold}]{PingFang TC}
 \setmonofont[Scale=0.88]{Menlo}
-\xeCJKsetup{CJKecglue=}             % no extra space at CJK-Latin boundary
-\linespread{1.18}                    % tighter line-height
+\xeCJKsetup{CJKecglue=}
+\linespread{1.18}
 \setlength{\parskip}{0.35em}
 \setlength{\parindent}{0pt}
-\raggedbottom                        % don't pad short pages with vfill
+\raggedbottom
 
-%% ── Colors (Asgard palette) ─────────────────────────────────────────
+%% ── Asgard color palette (from design.asgard-ai.com) ─────────────────
 \usepackage{xcolor}
-\definecolor{AsNavy}{HTML}{0F3460}
-\definecolor{AsNavyDeep}{HTML}{162447}
-\definecolor{AsGold}{HTML}{C9A84C}
-\definecolor{AsGoldLight}{HTML}{F7EFD3}
-\definecolor{AsSlate}{HTML}{475569}
-\definecolor{AsMuted}{HTML}{64748B}
-\definecolor{AsLine}{HTML}{E2E8F0}
-\definecolor{AsBg}{HTML}{F8FAFC}
+\definecolor{AsBlue}{HTML}{2563EB}        % Primary (blue-600)
+\definecolor{AsBlueDeep}{HTML}{1D4ED8}    % blue-700
+\definecolor{AsBlueDark}{HTML}{1E3A8A}    % blue-900 (heading / dark accents)
+\definecolor{AsBlueMid}{HTML}{3B82F6}     % blue-500
+\definecolor{AsBlueLight}{HTML}{60A5FA}   % blue-400 (logo dot)
+\definecolor{AsBlueTint}{HTML}{DBEAFE}    % blue-100 (table header tint)
+\definecolor{AsBlueWash}{HTML}{EFF6FF}    % blue-50  (callout background)
+\definecolor{AsInk}{HTML}{0F172A}         % slate-900 (body text on light)
+\definecolor{AsSlate}{HTML}{475569}       % slate-600
+\definecolor{AsMuted}{HTML}{64748B}       % slate-500
+\definecolor{AsLine}{HTML}{E2E8F0}        % slate-200
+\definecolor{AsBg}{HTML}{F8FAFC}          % slate-50
+\definecolor{AsNavy}{HTML}{0B1530}        % near-black navy (cover bg)
 
 %% ── Section styling ──────────────────────────────────────────────────
 \usepackage{titlesec}
 \titleformat{\section}[block]
-  {\color{AsNavyDeep}\sffamily\Large\bfseries}
-  {\color{AsGold}\thesection\hspace{0.6em}}{0pt}
+  {\color{AsBlueDark}\sffamily\Large\bfseries}
+  {\color{AsBlue}\thesection\hspace{0.6em}}{0pt}
   {}
-  [\vspace{-0.2em}{\color{AsGold}\rule{1.6em}{2pt}}\vspace{0.1em}]
+  [\vspace{-0.15em}{\color{AsBlue}\rule{1.8em}{2pt}}\vspace{0.1em}]
 \titleformat{\subsection}[block]
-  {\color{AsNavy}\sffamily\large\bfseries}
+  {\color{AsBlueDeep}\sffamily\large\bfseries}
   {\thesubsection\hspace{0.5em}}{0pt}{}
 \titleformat{\subsubsection}[block]
   {\color{AsSlate}\sffamily\normalsize\bfseries}
@@ -46,24 +51,54 @@
 \titlespacing*{\subsection}{0pt}{0.8em}{0.3em}
 \titlespacing*{\subsubsection}{0pt}{0.6em}{0.2em}
 
+%% ── Graphics ─────────────────────────────────────────────────────────
+\usepackage{graphicx}
+% Look for images in build/ and diagrams/ — covers logo in cover page
+% AND body figures referenced via ../diagrams/...
+\graphicspath{{./}{../diagrams/}{output/build/}{output/diagrams/}}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup[figure]{
+  labelfont={color=AsBlue,sf,bf}, textfont={sf,footnotesize,it,color=AsSlate},
+  labelsep=quad, name={圖}, format=hang, justification=centering,
+  skip=4pt
+}
+\setkeys{Gin}{keepaspectratio=true}
+\makeatletter
+\def\fps@figure{htb!}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.95}
+\makeatother
+\usepackage{placeins}
+\let\oldsection\section
+\renewcommand{\section}{\FloatBarrier\oldsection}
+
+%% Logo helper (uses output/diagrams/asgard-logo.pdf)
+\newcommand{\AsgardLogo}[1][1.2em]{\includegraphics[height=#1]{asgard-logo.pdf}}
+
 %% ── Header / Footer ──────────────────────────────────────────────────
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
-\fancyhead[L]{\footnotesize\color{AsMuted}\textsf{杰隆印刷　×　Asgard AI}}
+\fancyhead[L]{%
+  \raisebox{-0.18em}{\AsgardLogo[0.85em]}\hspace{0.4em}%
+  \footnotesize\color{AsBlueDeep}\textsf{\textbf{Asgard AI}}\hspace{0.3em}%
+  \color{AsMuted}\textsf{×　杰隆印刷}}
 \fancyhead[R]{\footnotesize\color{AsMuted}\textsf{POC 提案與技術規劃}}
-\fancyfoot[L]{\footnotesize\color{AsMuted}\textsf{Asgard AI Proposal · 2026-05-16}}
-\fancyfoot[R]{\footnotesize\color{AsNavy}\textsf{\thepage}}
+\fancyfoot[L]{\footnotesize\color{AsMuted}\textsf{2026-05-16　·　Asgard AI Proposal}}
+\fancyfoot[R]{\footnotesize\color{AsBlueDeep}\textsf{\thepage}}
 \fancypagestyle{plain}{%
   \fancyhf{}
-  \fancyfoot[R]{\footnotesize\color{AsNavy}\textsf{\thepage}}
+  \fancyfoot[R]{\footnotesize\color{AsBlueDeep}\textsf{\thepage}}
   \renewcommand{\headrulewidth}{0pt}}
 
 %% ── Tables ───────────────────────────────────────────────────────────
-\usepackage{calc}      % needed for pandoc's proportional column widths
-\usepackage{amsmath,amssymb}   % \boxtimes etc. pandoc may emit for unicode chars
+\usepackage{calc}
+\usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
@@ -77,94 +112,59 @@
 \usepackage{enumitem}
 \setlist{leftmargin=1.4em, itemsep=0.18em, topsep=0.2em}
 
-%% ── Quotes / callouts (mdframed for fewer deps) ──────────────────────
+%% ── Callout (blockquote) ─────────────────────────────────────────────
 \usepackage[xcolor]{mdframed}
-\newmdenv[
-  linewidth=0pt,
-  leftline=true, rightline=false, topline=false, bottomline=false,
-  linecolor=AsGold,
-  backgroundcolor=AsGoldLight,
-  innerleftmargin=12pt, innerrightmargin=12pt,
-  innertopmargin=8pt, innerbottommargin=8pt,
-  skipabove=0.5em, skipbelow=0.5em,
-  middlelinewidth=0pt,
-]{asgardcallout}
-% leftline width via inner rule: simulate 4pt
 \renewenvironment{quote}{%
   \begin{mdframed}[
     linewidth=4pt, leftline=true, rightline=false, topline=false, bottomline=false,
-    linecolor=AsGold, backgroundcolor=AsGoldLight,
+    linecolor=AsBlue, backgroundcolor=AsBlueWash,
     innerleftmargin=12pt, innerrightmargin=12pt,
     innertopmargin=8pt, innerbottommargin=8pt,
     skipabove=0.6em, skipbelow=0.6em
-  ]\sffamily\small
+  ]\sffamily\small\color{AsInk}%
 }{\end{mdframed}}
 
 %% ── Code blocks ──────────────────────────────────────────────────────
 \usepackage{fancyvrb}
-\renewcommand{\theFancyVerbLine}{\sffamily\textcolor{AsMuted}{\scriptsize \arabic{FancyVerbLine}}}
+\usepackage{framed}        % needed for pandoc's "Shaded" environment
 \fvset{
   frame=leftline, framerule=2pt, framesep=8pt,
-  rulecolor=\color{AsGold},
+  rulecolor=\color{AsBlue},
   fontfamily=tt, fontsize=\footnotesize,
   formatcom=\color{AsSlate},
   baselinestretch=1.15,
 }
 
-%% ── Figures (force inline placement) ─────────────────────────────────
-\usepackage{graphicx}
-\usepackage{float}                 % provides [H] placement
-\usepackage{caption}
-\captionsetup[figure]{
-  labelfont={color=AsGold,sf,bf}, textfont={sf,footnotesize,it,color=AsSlate},
-  labelsep=quad, name={圖}, format=hang, justification=centering,
-  skip=4pt
-}
-\setkeys{Gin}{keepaspectratio=true}
-% Allow figures at top/bottom of page but NOT whole-page floats
-% (whole-page floats create blank pages with raggedbottom)
-\makeatletter
-\def\fps@figure{htb!}
-\renewcommand{\topfraction}{0.95}
-\renewcommand{\bottomfraction}{0.95}
-\renewcommand{\textfraction}{0.05}
-\renewcommand{\floatpagefraction}{0.95}
-\makeatother
-% Flush any pending floats at the end of each section
-\usepackage{placeins}
-\let\oldsection\section
-\renewcommand{\section}{\FloatBarrier\oldsection}
+% Pandoc emits \begin{Shaded} ... \end{Shaded} around highlighted code.
+% Provide a tinted box for it.
+\definecolor{shadecolor}{HTML}{F1F5F9}
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
 
 %% ── Hyperref ─────────────────────────────────────────────────────────
 \usepackage{hyperref}
 \hypersetup{
   colorlinks=true,
-  linkcolor=AsNavy,
-  urlcolor=AsNavy,
+  linkcolor=AsBlue,
+  urlcolor=AsBlue,
   pdftitle={杰隆印刷 × Asgard AI — POC 提案與技術規劃},
   pdfauthor={Asgard AI},
 }
 
-%% ── Pandoc compatibility ────────────────────────────────────────────
-$if(highlighting-macros)$
-$highlighting-macros$
-$endif$
-
-% Pandoc helper macros (needed when overriding default template)
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+%% ── Pandoc helpers ──────────────────────────────────────────────────
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \providecommand{\real}[1]{#1}
 \providecommand{\passthrough}[1]{#1}
-\setlength{\emergencystretch}{3em}      % prevent overfull boxes
 \providecommand{\pandocbounded}[1]{#1}
+\setlength{\emergencystretch}{3em}
 
-%% ── Custom title / TOC ──────────────────────────────────────────────
-% TOC styling
+%% ── TOC styling ─────────────────────────────────────────────────────
 \usepackage{titletoc}
 \titlecontents{section}[0pt]
   {\addvspace{0.4em}\sffamily}
-  {\color{AsGold}\bfseries\contentslabel{2.2em}\color{AsNavyDeep}}
-  {\color{AsNavyDeep}}
+  {\color{AsBlue}\bfseries\contentslabel{2.2em}\color{AsBlueDark}}
+  {\color{AsBlueDark}}
   {\hfill\color{AsMuted}\scriptsize\contentspage}
 \titlecontents{subsection}[2.6em]
   {\sffamily\small}
@@ -172,44 +172,56 @@ $endif$
   {\color{AsSlate}}
   {\hfill\color{AsMuted}\scriptsize\contentspage}
 
-\renewcommand{\contentsname}{\textsf{\color{AsNavyDeep}目\hspace{0.4em}錄}}
+\renewcommand{\contentsname}{\textsf{\color{AsBlueDark}目\hspace{0.4em}錄}}
 
 \begin{document}
 
-%% ── Cover page ───────────────────────────────────────────────────────
+%% ── Cover page (white + Asgard blue, mirrors design.asgard-ai.com) ───
 \begin{titlepage}
   \thispagestyle{empty}
-  \pagecolor{AsNavyDeep}
-  \color{white}
-  \vspace*{0.13\textheight}
+  \vspace*{0.06\textheight}
+
+  % Top-bar: small logo + brand
   \begin{flushleft}
-    {\sffamily\fontsize{11pt}{14pt}\selectfont\color{AsGold} ASGARD AI　×　JLONG PRINTING}\\[2em]
-    {\sffamily\fontsize{30pt}{36pt}\selectfont\bfseries 杰隆印刷}\\[0.4em]
-    {\sffamily\fontsize{30pt}{36pt}\selectfont\bfseries × Asgard AI}\\[1.0em]
-    {\color{AsGold}\rule{4cm}{2pt}}\\[1.0em]
-    {\sffamily\fontsize{18pt}{24pt}\selectfont\color{white} AI 自動接單系統}\\[0.4em]
-    {\sffamily\fontsize{18pt}{24pt}\selectfont\color{white}{\textemdash}\hspace{0.3em} POC 提案與技術規劃}\\[2.5em]
-    {\sffamily\small\color{white!75}
-      \begin{tabular}{@{}l@{\hspace{2em}}l@{}}
-        \color{AsGold}\textbf{提案方} & Asgard AI \\
-        \color{AsGold}\textbf{客戶}　 & 杰隆印刷有限公司 \\
-        \color{AsGold}\textbf{日期}　 & 2026-05-16 \\
-        \color{AsGold}\textbf{版本}　 & v1.1 \\
-      \end{tabular}
-    }
+    {\AsgardLogo[1.2em]}\hspace{0.5em}%
+    {\sffamily\fontsize{14pt}{18pt}\selectfont\color{AsBlueDark}\textbf{Asgard AI}}%
+    \hfill%
+    {\sffamily\fontsize{9pt}{12pt}\selectfont\color{AsMuted}DESIGN.ASGARD-AI.COM}
   \end{flushleft}
+  \vspace{0.04\textheight}
+
+  % Hero logo (large, centered)
+  \begin{center}
+    \includegraphics[width=4.2cm]{asgard-logo.pdf}\\[1.4em]
+    {\sffamily\fontsize{11pt}{14pt}\selectfont\color{AsBlue}\textbf{ASGARD AI　×　JLONG PRINTING}}\\[1.2em]
+    {\sffamily\fontsize{34pt}{40pt}\selectfont\color{AsBlueDark}\textbf{杰隆印刷　×　Asgard AI}}\\[0.4em]
+    {\color{AsBlue}\rule{5.2cm}{2pt}}\\[1.0em]
+    {\sffamily\fontsize{18pt}{24pt}\selectfont\color{AsInk}AI 自動接單系統}\\[0.2em]
+    {\sffamily\fontsize{18pt}{24pt}\selectfont\color{AsInk}POC 提案與技術規劃}\\[1.6em]
+    {\sffamily\fontsize{11pt}{15pt}\selectfont\color{AsMuted}從洞察到執行的智慧閉環}
+  \end{center}
+
   \vfill
-  \begin{flushright}
-    {\sffamily\small\color{AsGold}ᛟ \quad ᛏ \quad ᛉ}\\[0.4em]
-    {\sffamily\footnotesize\color{white!50}Odin　·　Sindri　·　Mimir}
-  \end{flushright}
+
+  % Footer block: metadata table
+  \begin{center}
+    \begin{tabular}{@{}r@{\hspace{1.2em}}l@{\hspace{3em}}r@{\hspace{1.2em}}l@{}}
+      \color{AsBlue}\textbf{\sffamily 提案方} & \sffamily Asgard AI &
+      \color{AsBlue}\textbf{\sffamily 日期} & \sffamily 2026-05-16 \\[0.4em]
+      \color{AsBlue}\textbf{\sffamily 客戶}　 & \sffamily 杰隆印刷有限公司 &
+      \color{AsBlue}\textbf{\sffamily 版本} & \sffamily v1.2 \\
+    \end{tabular}
+  \end{center}
+  \vspace{1.4em}
+  \begin{center}
+    {\sffamily\footnotesize\color{AsMuted}Odin　·　Sindri　·　Mimir　·　Heimdall　·　Yggdrasil}
+  \end{center}
 \end{titlepage}
-\nopagecolor
 
 %% ── TOC ─────────────────────────────────────────────────────────────
 \setcounter{page}{1}
 \pagenumbering{arabic}
-{\hypersetup{linkcolor=AsNavyDeep}
+{\hypersetup{linkcolor=AsBlueDark}
 \tableofcontents}
 \clearpage
 
