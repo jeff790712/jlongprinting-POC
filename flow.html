@@ -113,6 +113,23 @@
     .sindri .tool-tag { background: var(--sindri-t); color: var(--sindri); }
     .mimir  .tool-tag { background: var(--mimir-t);  color: var(--mimir); }
 
+    /* Custom-dev card (Phase 1, alongside Odin) */
+    :root { --custom: #475569; --custom-t: rgba(71,85,105,.12); }
+    .tool-card.custom::before { background: var(--custom); }
+    .custom .tool-icon { background: var(--custom-t); }
+    .custom .tool-name { color: var(--custom); }
+    .custom .tool-tag  { background: var(--custom-t); color: var(--custom); }
+    .badge-custom { background: var(--custom-t); color: var(--custom); }
+
+    /* Two-column grid for the Phase-1 cards */
+    .tool-grid.two-col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    @media (max-width: 720px) { .tool-grid.two-col { grid-template-columns: 1fr; } }
+
+    .tool-sub { font-size: 12px; color: var(--muted); margin-top: 2px; margin-bottom: 12px; }
+    .tool-points { list-style: none; padding: 0; margin: 0; }
+    .tool-points li { font-size: 13px; color: var(--text); margin-top: 6px; padding-left: 14px; position: relative; line-height: 1.5; }
+    .tool-points li::before { content: "•"; position: absolute; left: 0; color: var(--gold); }
+
     /* ── Flow Diagram ── */
     .flow-container { display: grid; grid-template-columns: 1fr 56px 320px; gap: 0; align-items: start; }
 
@@ -214,6 +231,7 @@
     .ft-circle.c-odin     { background: var(--odin); color: #fff; }
     .ft-circle.c-sindri   { background: var(--sindri); color: #fff; }
     .ft-circle.c-mimir    { background: var(--mimir); color: #fff; }
+    .ft-circle.c-custom   { background: var(--custom); color: #fff; }
     .ft-circle.c-ai       { background: #d97706; color: #fff; }
     .ft-circle.c-end      { background: var(--success); color: #fff; }
 
@@ -251,12 +269,14 @@
     }
     .legend-item-text strong { font-size: 12px; display: block; font-weight: 700; }
     .legend-item-text span   { font-size: 11px; color: var(--muted); }
-    .dot-customer { background: #0ea5e9; }
-    .dot-odin     { background: var(--odin); }
-    .dot-sindri   { background: var(--sindri); }
-    .dot-mimir    { background: var(--mimir); }
-    .dot-ai       { background: #d97706; }
-    .dot-end      { background: var(--success); }
+    .dot-customer  { background: #0ea5e9; }
+    .dot-odin      { background: var(--odin); }
+    .dot-sindri    { background: var(--sindri); }
+    .dot-mimir     { background: var(--mimir); }
+    .dot-custom    { background: var(--custom); }
+    .dot-custom-db { background: var(--gold); }
+    .dot-ai        { background: #d97706; }
+    .dot-end       { background: var(--success); }
 
     /* ── Before / After ── */
     .comparison { display: grid; grid-template-columns: 1fr 64px 1fr; gap: 0; align-items: start; }
@@ -353,53 +373,40 @@
   <div class="hero">
     <div class="hero-badge">AI 接單解決方案</div>
     <h1>讓 AI 接住每一個詢單<br><span>24/7 自動引導，15 分鐘完成報價</span></h1>
-    <p>以 Asgard AI 三大引擎為核心，將散客詢價流程從「0.5～3 天的來回溝通」壓縮至即時完成，並向後整合訂單追蹤系統。</p>
+    <p>以 Asgard AI 的 <strong>Odin 工作流引擎</strong> 為核心，搭配客製化前後端與基本資料層，將散客詢價流程從「0.5～3 天的來回溝通」壓縮至即時完成。</p>
   </div>
 
-  <!-- Section 1: Three Tools -->
+  <!-- Section 1: Core Technology -->
   <section class="section">
     <div class="section-label">核心技術</div>
-    <div class="section-title">三大 AI 引擎，各司其職</div>
-    <div class="section-desc">Asgard AI 平台的三個核心模組覆蓋「流程設計 → 智能執行 → 資料整合」完整鏈路。</div>
-    <div class="tools-grid">
+    <div class="section-title">Odin 工作流 ＋ 客製化交付</div>
+    <div class="section-desc">本次 POC 以 Asgard Odin 工作流引擎為編排核心，搭配客製化前後端與基本 DB / AP Server 完成交付。Sindri Agent Hub、Mimir Data Insight 等進階模組為 Phase 2 未來擴展。</div>
+
+    <div class="tool-grid two-col">
       <div class="tool-card odin">
-        <div class="tool-icon">🔧</div>
+        <div class="tool-tag">Asgard 平台</div>
+        <div class="tool-icon">⚙️</div>
         <div class="tool-name">Odin</div>
-        <div class="tool-role">零程式碼 AI 工作流引擎</div>
-        <div class="tool-desc">設計整個詢價自動化工作流。負責 Webhook 統一入口、意圖路由、條件分支、Email 通知與最終訂單輸出。無需工程師介入即可調整流程邏輯。</div>
-        <div class="tool-tags">
-          <span class="tool-tag">Webhook 入口</span>
-          <span class="tool-tag">意圖路由</span>
-          <span class="tool-tag">條件分支</span>
-          <span class="tool-tag">Email 通知</span>
-          <span class="tool-tag">訂單輸出</span>
-        </div>
+        <div class="tool-sub">Asgard Studio · 零程式碼 AI 工作流</div>
+        <ul class="tool-points">
+          <li>對話流程編排（接單主流程、條件分支、轉接邏輯）</li>
+          <li>LLM 節點（意圖識別、欄位缺口偵測、話術生成）</li>
+          <li>串接 Vision / Image Gen API（圖檔解析、模擬圖）</li>
+          <li>Webhook 入口（網頁、LINE 雙管道）</li>
+        </ul>
       </div>
-      <div class="tool-card sindri">
-        <div class="tool-icon">🤖</div>
-        <div class="tool-name">Sindri</div>
-        <div class="tool-role">Multi-Agent 智能執行引擎</div>
-        <div class="tool-desc">部署 8 個專職 AI Agent，分工負責意圖識別、欄位收集、材質對應、圖檔解析、模擬圖生成、情緒偵測與訂單整合。Agent 間自動協作，無縫銜接。</div>
-        <div class="tool-tags">
-          <span class="tool-tag">欄位缺口偵測</span>
-          <span class="tool-tag">材質智能對應</span>
-          <span class="tool-tag">圖檔解析</span>
-          <span class="tool-tag">模擬圖生成</span>
-          <span class="tool-tag">情緒偵測</span>
-        </div>
-      </div>
-      <div class="tool-card mimir">
-        <div class="tool-icon">📊</div>
-        <div class="tool-name">Mimir</div>
-        <div class="tool-role">資料整合與洞察核心</div>
-        <div class="tool-desc">整合現有 Excel 訂單追蹤表、建立客戶資料庫，並以 RAG 向量技術建構材質知識庫與 FAQ。舊客歷史訂單一鍵調取，對話紀錄完整保存供後續分析。</div>
-        <div class="tool-tags">
-          <span class="tool-tag">訂單資料庫</span>
-          <span class="tool-tag">客戶識別</span>
-          <span class="tool-tag">知識庫 RAG</span>
-          <span class="tool-tag">對話紀錄</span>
-          <span class="tool-tag">Excel 整合</span>
-        </div>
+
+      <div class="tool-card custom">
+        <div class="tool-tag">客製化開發</div>
+        <div class="tool-icon">🛠️</div>
+        <div class="tool-name">前後端 + DB / AP Server</div>
+        <div class="tool-sub">由 Asgard AI 團隊客製化交付</div>
+        <ul class="tool-points">
+          <li>嵌入式 Chatbot 前端（React，可內嵌至官網）</li>
+          <li>後端 API（Session、訂單草稿、舊客查詢、通知）</li>
+          <li>基本 DB（訂單草稿、客戶資料、對話紀錄）</li>
+          <li>AP Server 部署 + 基本監控</li>
+        </ul>
       </div>
     </div>
   </section>
@@ -423,7 +430,7 @@
               <div class="ft-desc">不限管道、不限時間。散客發出任何形式的詢問訊息（報價、補印、規格詢問均可），系統 24/7 即時接線，不再因為非上班時間而漏接。</div>
               <div class="ft-badges">
                 <span class="step-badge badge-odin">Odin · Webhook 入口</span>
-                <span class="step-badge badge-sindri">Sindri · Session 建立</span>
+                <span class="step-badge badge-custom">客製化後端 · Session 建立</span>
               </div>
             </div>
           </div>
@@ -437,7 +444,7 @@
               <div class="ft-desc">AI 自動判斷客戶意圖，分流至對應的處理路徑。無論客戶說「我要印貼紙」或「上次那個可以再來一次嗎」，都能正確識別並引導。</div>
               <div class="ft-badges">
                 <span class="step-badge badge-odin">Odin · 路由器</span>
-                <span class="step-badge badge-sindri">Sindri · Intake Agent</span>
+                <span class="step-badge badge-odin">Odin · Intake 節點</span>
               </div>
             </div>
           </div>
@@ -458,13 +465,13 @@
 
           <!-- Step 3 -->
           <div class="ft-step">
-            <div class="ft-circle c-sindri">收</div>
+            <div class="ft-circle c-odin">收</div>
             <div class="ft-content">
               <div class="ft-title">欄位缺口偵測 — 白話引導收集規格</div>
               <div class="ft-desc">系統核心：AI 持續追蹤 14 個必填欄位的收集狀態，每輪對話後判斷哪個欄位最重要、還缺什麼，自動生成下一個白話追問，不重複、不遺漏。</div>
               <div class="ft-badges">
-                <span class="step-badge badge-sindri">Sindri · Field Collector Agent</span>
-                <span class="step-badge badge-mimir">Mimir · 知識庫 RAG</span>
+                <span class="step-badge badge-odin">Odin · 欄位偵測節點</span>
+                <span class="step-badge badge-custom">客製化 DB · 材質知識</span>
               </div>
             </div>
           </div>
@@ -472,12 +479,12 @@
 
           <!-- Step 4 -->
           <div class="ft-step">
-            <div class="ft-circle c-sindri">材</div>
+            <div class="ft-circle c-odin">材</div>
             <div class="ft-content">
               <div class="ft-title">材質智能對應 — 限定官網 8 種材質</div>
               <div class="ft-desc">客戶說「要那種有金屬感的」，AI 自動對應至「亮銀龍」或「反銀龍」並附上說明。所有材質選項嚴格限定為官網提供的 8 種，確保可生產性，不接受超出範圍的需求。</div>
               <div class="ft-badges">
-                <span class="step-badge badge-sindri">Sindri · Material Advisor Agent</span>
+                <span class="step-badge badge-odin">Odin · 材質推薦節點</span>
               </div>
             </div>
           </div>
@@ -491,7 +498,7 @@
               <div class="ft-desc">客戶上傳設計稿，AI 自動解析色數與特殊工藝（燙金、打凸等）。同時依據材質、容器類型與使用場景，生成貼標於實際產品上的情境模擬圖供客戶預覽。</div>
               <div class="ft-badges">
                 <span class="step-badge badge-ai">LLM Vision · 圖檔解析</span>
-                <span class="step-badge badge-sindri">Sindri · Mockup Generator</span>
+                <span class="step-badge badge-odin">Odin · Image Gen 節點</span>
               </div>
             </div>
           </div>
@@ -499,12 +506,12 @@
 
           <!-- Step 6 -->
           <div class="ft-step">
-            <div class="ft-circle c-sindri">情</div>
+            <div class="ft-circle c-odin">情</div>
             <div class="ft-content">
               <div class="ft-title">情緒偵測 — 負面累積自動轉真人</div>
               <div class="ft-desc">AI 持續偵測對話中的情緒訊號。當客戶出現連續不滿、要求議價或超出 AI 知識範圍時，自動觸發通知，將完整對話紀錄交給業務人員接手——客戶無需重複說一遍。</div>
               <div class="ft-badges">
-                <span class="step-badge badge-sindri">Sindri · Emotion Detector</span>
+                <span class="step-badge badge-odin">Odin · 情緒偵測節點</span>
                 <span class="step-badge badge-odin">Odin · 轉接 Email 通知</span>
               </div>
             </div>
@@ -513,12 +520,12 @@
 
           <!-- Step 7 -->
           <div class="ft-step">
-            <div class="ft-circle c-sindri">單</div>
+            <div class="ft-circle c-odin">單</div>
             <div class="ft-content">
               <div class="ft-title">訂單草稿整合確認</div>
               <div class="ft-desc">所有欄位收集完成後，AI 匯整成結構化訂單草稿，以視覺化方式呈現給客戶確認，包含品名、尺寸、數量、材質、交期等所有必要資訊。</div>
               <div class="ft-badges">
-                <span class="step-badge badge-sindri">Sindri · Order Summary Agent</span>
+                <span class="step-badge badge-odin">Odin · 訂單總結節點</span>
               </div>
             </div>
           </div>
@@ -526,12 +533,12 @@
 
           <!-- Step 8 -->
           <div class="ft-step">
-            <div class="ft-circle c-mimir">存</div>
+            <div class="ft-circle c-custom">存</div>
             <div class="ft-content">
               <div class="ft-title">寫入資料庫 + 即時通知業務</div>
-              <div class="ft-desc">訂單草稿自動寫入 Mimir 資料庫，同步觸發 Email / LINE 通知業務人員。業務收到完整的結構化資料，無需再次電話確認規格，直接進行報價。</div>
+              <div class="ft-desc">訂單草稿自動寫入客製化 DB，同步觸發 Email / LINE 通知業務人員。業務收到完整的結構化資料，無需再次電話確認規格，直接進行報價。</div>
               <div class="ft-badges">
-                <span class="step-badge badge-mimir">Mimir · 訂單 DB 寫入</span>
+                <span class="step-badge badge-custom">客製化 DB · 訂單寫入</span>
                 <span class="step-badge badge-odin">Odin · 業務通知</span>
               </div>
             </div>
@@ -574,17 +581,17 @@
               </div>
             </div>
             <div class="legend-item">
-              <div class="legend-dot dot-sindri"></div>
+              <div class="legend-dot dot-custom"></div>
               <div class="legend-item-text">
-                <strong>Sindri — Agent 執行層</strong>
-                <span>AI 對話、欄位收集、智能判斷</span>
+                <strong>客製化開發 — 前後端 + AP Server</strong>
+                <span>Chatbot 前端、Session 與訂單 API、舊客查詢、情緒通知</span>
               </div>
             </div>
             <div class="legend-item">
-              <div class="legend-dot dot-mimir"></div>
+              <div class="legend-dot dot-custom-db"></div>
               <div class="legend-item-text">
-                <strong>Mimir — 資料整合層</strong>
-                <span>資料庫存取、知識庫查詢</span>
+                <strong>基本 DB — 資料層</strong>
+                <span>訂單草稿、客戶資料、對話紀錄；Phase 2 可升級為 Mimir Data Insight</span>
               </div>
             </div>
             <div class="legend-item">
@@ -758,6 +765,38 @@
         <div class="metric-num">3<span>問</span></div>
         <div class="metric-label">舊客補印<br>最少問答輪數</div>
         <div class="metric-tag">回頭客體驗</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">未來擴展</div>
+    <div class="section-title">Phase 2：Asgard 平台進階模組</div>
+    <div class="section-desc">POC 上線並穩定後，可逐步導入 Asgard 平台的進階模組，獲得更強的對話品質與決策能力。另行報價。</div>
+
+    <div class="tool-grid two-col">
+      <div class="tool-card sindri">
+        <div class="tool-tag">Phase 2</div>
+        <div class="tool-icon">🤖</div>
+        <div class="tool-name">Sindri Agent Hub</div>
+        <div class="tool-sub">Asgard Agents Hub · 多 Agent 自動化執行</div>
+        <ul class="tool-points">
+          <li>多 Agent 並行協作、Agent 間任務交接</li>
+          <li>跨對話記憶、長期客戶關係追蹤</li>
+          <li>複雜詢價案件的對話品質升級</li>
+        </ul>
+      </div>
+
+      <div class="tool-card mimir">
+        <div class="tool-tag">Phase 2</div>
+        <div class="tool-icon">📊</div>
+        <div class="tool-name">Mimir Data Insight</div>
+        <div class="tool-sub">Asgard Data Insight · 資料洞察與決策</div>
+        <ul class="tool-points">
+          <li>訂單轉換漏斗、客群分析儀表板</li>
+          <li>材質偏好趨勢、季節性需求預測</li>
+          <li>跨來源資料整合與決策建議</li>
+        </ul>
       </div>
     </div>
   </section>
