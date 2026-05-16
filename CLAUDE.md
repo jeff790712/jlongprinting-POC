@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A **client-facing POC bundle** pitched to 杰隆印刷 (Jlong Printing) by Asgard AI. It is not a product or an app — it is a presentation artifact in three pieces:
 
 - `index.html` — a self-contained, scripted "AI 詢價助理" chatbot demo (zh-TW). Single file, no build, no backend; all state lives in browser memory.
-- `flow.html` — a static marketing/architecture page explaining how Asgard AI's three engines (Odin / Sindri / Mimir) map onto the proposed ordering flow. Linked from `index.html` via the header.
+- `flow.html` — a static marketing/architecture page explaining the proposed ordering flow. Phase 1 (本次 POC) uses Asgard's **Odin** workflow engine plus **客製化** front/back-end and basic DB / AP Server; **Sindri** and **Mimir** appear as a Phase 2 future-expansion card near the page end. Linked from `index.html` via the header.
 - `POC_Proposal_杰隆印刷_AI接單系統.md` — the written proposal (scope, architecture, acceptance criteria, timeline). This is the source of truth for *what* the system is supposed to do; the HTML files are what the demo currently *shows*.
 
 Source references for the printing domain (materials, order tracking spreadsheets, original requirements doc, drawio flow PDF) live under `references/`. Treat them as read-only inputs.
