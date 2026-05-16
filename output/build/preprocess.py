@@ -205,13 +205,7 @@ APPENDIX_D = """
 2. 不含 LINE 官方帳號 / FB Messenger 等通道串接（Phase 2 規劃）
 3. 不含自動報價計算邏輯（需杰隆提供定價模型）
 4. 雲端基礎設施費用（GCP / AWS）由客戶以實際使用量支付
-
-### D.6　付款條件與有效期 {-}
-
-- **付款條件建議**：簽約 30% / 中期驗收 40% / 最終驗收 30%
-- **報價有效期**：自報價日起 30 日
-- **本次報價日期**：__TODAY__
-""".replace("__TODAY__", date.today().strftime("%Y-%m-%d"))
+"""
 
 # ---- YAML frontmatter (consumed by pandoc / asgard.latex template) ---------
 
