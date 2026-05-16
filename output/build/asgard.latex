@@ -1,10 +1,10 @@
 % Asgard-AI styled LaTeX template for pandoc
 % Inspired by asgard-ai.com — navy + gold + generous whitespace.
 
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 
-%% ── Geometry ──────────────────────────────────────────────────────────
-\usepackage[a4paper, top=2.5cm, bottom=2.4cm, left=2.4cm, right=2.4cm, headheight=1.4cm, headsep=0.6cm, footskip=1.2cm]{geometry}
+%% ── Geometry (tighter to reduce page count) ──────────────────────────
+\usepackage[a4paper, top=2.0cm, bottom=2.0cm, left=2.0cm, right=2.0cm, headheight=1.2cm, headsep=0.45cm, footskip=1.0cm]{geometry}
 
 %% ── Fonts (xelatex + CJK) ────────────────────────────────────────────
 \usepackage{fontspec}
@@ -13,9 +13,10 @@
 \setCJKmainfont[BoldFont={PingFang TC Semibold}]{PingFang TC}
 \setmonofont[Scale=0.88]{Menlo}
 \xeCJKsetup{CJKecglue=}             % no extra space at CJK-Latin boundary
-\linespread{1.30}                    % open line-height
-\setlength{\parskip}{0.55em}
+\linespread{1.18}                    % tighter line-height
+\setlength{\parskip}{0.35em}
 \setlength{\parindent}{0pt}
+\raggedbottom                        % don't pad short pages with vfill
 
 %% ── Colors (Asgard palette) ─────────────────────────────────────────
 \usepackage{xcolor}
@@ -41,9 +42,9 @@
 \titleformat{\subsubsection}[block]
   {\color{AsSlate}\sffamily\normalsize\bfseries}
   {\thesubsubsection\hspace{0.4em}}{0pt}{}
-\titlespacing*{\section}{0pt}{2.0em}{0.9em}
-\titlespacing*{\subsection}{0pt}{1.3em}{0.5em}
-\titlespacing*{\subsubsection}{0pt}{1.0em}{0.35em}
+\titlespacing*{\section}{0pt}{1.2em}{0.5em}
+\titlespacing*{\subsection}{0pt}{0.8em}{0.3em}
+\titlespacing*{\subsubsection}{0pt}{0.6em}{0.2em}
 
 %% ── Header / Footer ──────────────────────────────────────────────────
 \usepackage{fancyhdr}
@@ -68,8 +69,8 @@
 \usepackage{array}
 \usepackage{colortbl}
 \arrayrulecolor{AsLine}
-\renewcommand{\arraystretch}{1.30}
-\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{6pt}
 \renewcommand{\familydefault}{\sfdefault}
 
 %% ── Lists ────────────────────────────────────────────────────────────
@@ -110,15 +111,29 @@
   baselinestretch=1.15,
 }
 
-%% ── Figures ──────────────────────────────────────────────────────────
+%% ── Figures (force inline placement) ─────────────────────────────────
 \usepackage{graphicx}
+\usepackage{float}                 % provides [H] placement
 \usepackage{caption}
 \captionsetup[figure]{
-  labelfont={color=AsGold,sf,bf}, textfont={sf,small,it,color=AsSlate},
+  labelfont={color=AsGold,sf,bf}, textfont={sf,footnotesize,it,color=AsSlate},
   labelsep=quad, name={圖}, format=hang, justification=centering,
-  skip=8pt
+  skip=4pt
 }
 \setkeys{Gin}{keepaspectratio=true}
+% Allow figures at top/bottom of page but NOT whole-page floats
+% (whole-page floats create blank pages with raggedbottom)
+\makeatletter
+\def\fps@figure{htb!}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.95}
+\makeatother
+% Flush any pending floats at the end of each section
+\usepackage{placeins}
+\let\oldsection\section
+\renewcommand{\section}{\FloatBarrier\oldsection}
 
 %% ── Hyperref ─────────────────────────────────────────────────────────
 \usepackage{hyperref}
@@ -142,11 +157,6 @@ $endif$
 \providecommand{\passthrough}[1]{#1}
 \setlength{\emergencystretch}{3em}      % prevent overfull boxes
 \providecommand{\pandocbounded}[1]{#1}
-
-% pandoc image stretching (passthrough)
-\makeatletter
-\def\fps@figure{htbp}
-\makeatother
 
 %% ── Custom title / TOC ──────────────────────────────────────────────
 % TOC styling

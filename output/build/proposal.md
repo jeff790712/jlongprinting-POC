@@ -31,7 +31,7 @@ lang: zh-Hant
 
 ### 核心痛點
 
-![散客詢價痛點流程](../diagrams/01-pain-flow.png){ width=50% }
+![散客詢價痛點流程](../diagrams/01-pain-flow.png){ width=40% }
 
 1. **回應速度**：非上班時間、假日完全無法接案，尤其影響跨國跨時區客戶。
 2. **溝通效率**：客戶不懂印刷術語（燙金、軋型、跳距），每次詢價都需要大量解釋。
@@ -46,7 +46,7 @@ lang: zh-Hant
 
 以 **Asgard Odin 工作流引擎** 為核心，搭配客製化前後端與基本 DB / AP Server，對應業主從「接單」到「訂單成立」的完整流程：
 
-![POC 解決方案流（Phase 1：Odin + 客製化 + 基本資料層）](../diagrams/02-solution-flow.png){ width=72% }
+![POC 解決方案流（Phase 1：Odin + 客製化 + 基本資料層）](../diagrams/02-solution-flow.png){ width=55% }
 
 ### 本次採用技術與業主需求對應
 
@@ -93,7 +93,7 @@ lang: zh-Hant
 
 ### 四層架構
 
-![四層架構：使用者層 → 對話層 → AI 核心 → 資料層](../diagrams/03-architecture-layers.png){ width=88% }
+![四層架構：使用者層 → 對話層 → AI 核心 → 資料層](../diagrams/03-architecture-layers.png){ width=72% }
 
 ### Asgard AI 工具映射到各層
 
@@ -266,7 +266,7 @@ lang: zh-Hant
 
 用於設計整體詢價工作流，包含：
 
-![Odin 工作流節點配置（Phase 1）](../diagrams/04-odin-workflow.png){ width=76% }
+![Odin 工作流節點配置（Phase 1）](../diagrams/04-odin-workflow.png){ width=60% }
 
 Odin 處理器類型使用：
 - **LLM 節點**：對話生成、意圖識別、欄位提取
@@ -385,7 +385,7 @@ Phase 2 採另行報價。
 
 ### 階段性里程碑
 
-![POC 導入時程 Gantt（4-6 週版本）](../diagrams/05-timeline.png){ width=92% }
+![POC 導入時程 Gantt（4-6 週版本）](../diagrams/05-timeline.png){ width=72% }
 
 ### Phase 2 規劃（POC 後）
 
@@ -437,7 +437,7 @@ Phase 2 採另行報價。
 
 ## 附錄 A：對話流程圖（文字版） {-}
 
-![對話流程：從客戶進入到訂單成立](../diagrams/06-dialog-flow.png){ width=80% }
+![對話流程：從客戶進入到訂單成立](../diagrams/06-dialog-flow.png){ width=55% }
 
 ---
 
@@ -499,32 +499,28 @@ Phase 2 採另行報價。
 *© 2026 Asgard AI — Confidential*
 
 
-\newpage
-
 ## 附錄 C：Demo 操作截圖 {-}
 
 下列截圖摘錄自實際運行的 POC Demo（`index.html`），呈現一次完整的「保養品瓶標」詢價流程，從歡迎畫面一路到結構化訂單輸出。
 
-![**歡迎畫面**　　AI 詢價助理啟動，提供「第一次詢價 / 補印舊款式」兩種入口；右側為訂單欄位追蹤面板（0 / 10）。](../screenshots/01-welcome.png){ width=92% }
+![**歡迎畫面**　　AI 詢價助理啟動，提供「第一次詢價 / 補印舊款式」兩種入口；右側為訂單欄位追蹤面板（0 / 10）。](../screenshots/01-welcome.png){ width=72% }
 
-\vspace{0.6em}
+\vspace{0.2em}
 
-![**對話進行中**　　客戶輸入品名與尺寸後，AI 接續詢問印製數量；建議快選按鈕降低輸入負擔，右側追蹤面板同步更新已收集欄位。](../screenshots/02-mid-conversation.png){ width=92% }
+![**對話進行中**　　客戶輸入品名與尺寸後，AI 接續詢問印製數量；建議快選按鈕降低輸入負擔，右側追蹤面板同步更新已收集欄位。](../screenshots/02-mid-conversation.png){ width=72% }
 
-\vspace{0.6em}
+\vspace{0.2em}
 
-![**材質智能引導**　　8 種官網提供之材質卡片排列，含特性說明與標籤（最熱門 / 質感首選 等），客戶以白話描述即可一鍵選擇。](../screenshots/03-material-grid.png){ width=92% }
+![**材質智能引導**　　8 種官網提供之材質卡片排列，含特性說明與標籤（最熱門 / 質感首選 等），客戶以白話描述即可一鍵選擇。](../screenshots/03-material-grid.png){ width=72% }
 
-\vspace{0.6em}
+\vspace{0.2em}
 
-![**AI 模擬圖生成**　　依客戶選擇的材質 / 尺寸即時渲染貼標於容器之情境模擬圖，協助客戶確認設計效果。](../screenshots/04-ai-mockup.png){ width=92% }
+![**AI 模擬圖生成**　　依客戶選擇的材質 / 尺寸即時渲染貼標於容器之情境模擬圖，協助客戶確認設計效果。](../screenshots/04-ai-mockup.png){ width=72% }
 
-\vspace{0.6em}
+\vspace{0.2em}
 
-![**訂單需求確認單**　　對話完成後輸出結構化需求確認，業務人員可直接使用此資訊進行報價，無需再次電話確認規格。](../screenshots/05-summary-card.png){ width=92% }
+![**訂單需求確認單**　　對話完成後輸出結構化需求確認，業務人員可直接使用此資訊進行報價，無需再次電話確認規格。](../screenshots/05-summary-card.png){ width=72% }
 
-
-\newpage
 
 ## 附錄 D：POC 報價單明細 {-}
 
