@@ -333,7 +333,9 @@
 
 ---
 
-## 7. Asgard AI 工具對應
+## 7. 本次 POC 採用的工具與分工（Phase 1）
+
+本次 POC 採用 **Asgard Odin 工作流引擎** 為核心，搭配客製化前後端與基本 DB / AP Server。Asgard 平台的其他模組（Sindri Agent Hub、Mimir Data Insight）為 Phase 2 進階擴展，本次不導入。
 
 ### 7.1 Odin（零程式碼 AI 工作流）
 
@@ -362,33 +364,39 @@ Odin 處理器類型使用：
 - **SQL 節點**：客戶資料庫查詢
 - **MCP 節點**：圖像生成 API 串接
 
-### 7.2 Sindri（Multi-Agent 執行引擎）
+### 7.2 客製化開發（前後端 + AI 整合層）
 
-部署多個專職 Agent 分工：
+本次 POC 由 Asgard AI 提供客製化開發資源，承擔以下原本可由 Sindri 提供的功能：
 
-| Agent 名稱 | 職責 |
-|-----------|------|
-| **Intake Agent** | 接收新訊息、意圖識別、Session 初始化 |
-| **Field Collector Agent** | 追蹤欄位缺口、生成追問話術 |
-| **Material Advisor Agent** | 口語描述 → 官網材質對應 |
-| **Image Analyst Agent** | 設計稿解析（色數、工藝偵測） |
-| **Mockup Generator Agent** | 生成貼標情境模擬圖 |
-| **Emotion Detector Agent** | 情緒分析、觸發轉真人機制 |
-| **Old Customer Agent** | 舊客識別、歷史資料帶入 |
-| **Order Summary Agent** | 最終訂單草稿整合與確認 |
+- **意圖識別 / 欄位缺口偵測 / 話術生成**：以 Odin LLM 節點 + 客製化 Python/Node 程式實作
+- **舊客識別與帶入**：客製化 API 查詢基本 DB，將歷史訂單帶回對話流
+- **情緒偵測 + 真人轉接**：Odin LLM 節點分類 + 客製化通知（Email / LINE Webhook）
+- **AI 模擬圖串接**：Odin Image Gen 節點 + 客製化前端展示
+- **嵌入式 Chatbot 前端**：React 元件，可內嵌至杰隆官網
 
-### 7.3 Mimir（資料整合）
+Phase 2 階段可升級為 **Sindri Agent Hub** 的多 Agent 編排，獲得更強的對話狀態管理與 Agent 協作能力。
 
-整合以下資料來源：
+### 7.3 基本 DB + AP Server（資料層）
 
-| 資料來源 | 整合方式 | 用途 |
-|---------|---------|------|
-| 現有 Excel 訂單追蹤表 | 轉換為結構化資料庫 | 舊客歷史訂單查詢 |
-| 客戶資料庫 | Mimir 建立 | 電話/Email 識別比對 |
-| 材質知識庫 | RAG 向量庫 | 材質白話說明 |
-| FAQ 知識庫 | RAG 向量庫 | 常見問題回答 |
-| 對話紀錄 | 寫入 Mimir | 分析與訓練用途 |
-| 訂單草稿 | Mimir DB 寫入 | 業務後台查看 |
+本次 POC 由 Asgard AI 協助搭建基本資料層，承擔以下原本可由 Mimir 提供的功能：
+
+- **訂單草稿 DB**：結構化儲存對話完成後的訂單需求
+- **客戶資料 DB**：Email / 電話索引，支援舊客查詢
+- **對話紀錄 DB**：完整對話 log，供後續分析與訓練
+- **AP Server**：後端 API、Session 管理、容器化部署、基本監控
+
+Phase 2 階段可升級為 **Mimir Data Insight**，獲得儀表板、跨來源資料整合與決策建議能力。
+
+### 7.4 Phase 2 進階擴展（本次 POC 不含，列為未來規劃）
+
+POC 上線並穩定後，可逐步導入 Asgard 平台的進階模組：
+
+| 模組 | 升級價值 | 觸發時機 |
+|------|---------|---------|
+| **Sindri Agent Hub** | 多 Agent 並行協作、跨對話記憶、Agent 間任務交接，提升複雜詢價案件的對話品質 | 散客量 > 50/日、需處理多步驟詢價時 |
+| **Mimir Data Insight** | 訂單轉換漏斗、客群分析、材質偏好趨勢儀表板，輔助業務決策 | 累積 3 個月以上歷史訂單後 |
+
+Phase 2 採另行報價。
 
 ---
 
@@ -461,7 +469,7 @@ Odin 處理器類型使用：
 | 週次 | 主要工作 | 交付物 |
 |------|---------|-------|
 | **Week 1** | 知識庫建置、Odin 工作流設計 | 材質知識庫、欄位定義 JSON、對話流 Demo |
-| **Week 2** | Sindri Agent 開發、欄位引導引擎 | 完整詢價對話可運行、舊客識別功能 |
+| **Week 2** | Odin 工作流 + 客製化欄位引導引擎開發 | 完整詢價對話可運行、舊客識別功能 |
 | **Week 3** | 模擬圖生成串接、前端嵌入、整合測試 | 網頁嵌入式 Chatbot、驗收演示 |
 
 ### 階段性里程碑
