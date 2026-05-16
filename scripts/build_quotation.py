@@ -144,32 +144,18 @@ def build_workbook(out_path: Path) -> None:
         c.alignment = Alignment(horizontal="center")
     ws.row_dimensions[12].height = 22
 
-    # Phase A: rows 13 (header), 14-17 (items), 18 (subtotal)
-    _phase_header(ws, 13, "──── W1-W2  Phase A：基礎架構 + DB Schema + AP Server 部署 ────")
     phase_a = [
         ("雲端環境規劃與建置", "GCP / AWS 帳號設定、VPC、IAM、Secret 管理"),
         ("DB Schema 設計與建置", "訂單草稿 / 客戶 / 對話紀錄 / 知識庫 schema"),
         ("AP Server 部署", "後端服務容器化、反向代理、TLS 設定"),
         ("CI/CD 與基本監控初始化", "GitHub Actions、Log/Error 監控初始化"),
     ]
-    for i, (name, desc) in enumerate(phase_a):
-        _write_item_row(ws, 14 + i, name, desc)
-    _phase_subtotal(ws, 18, "Phase A 階段小計", 14, 17)
-
-    # Phase B: rows 19 (header), 20-23 (items), 24 (subtotal)
-    _phase_header(ws, 19, "──── W3-W4  Phase B：核心對話流 + Odin 工作流建置 ────")
     phase_b = [
         ("Odin 工作流設計", "接單主流程、條件分支、轉接邏輯（於 Odin Studio 內設計）"),
         ("對話 Prompt 與欄位偵測邏輯", "LLM Prompt 工程、欄位缺口偵測、白話追問生成"),
         ("Chatbot 前端 UI 開發", "嵌入式對話框、訊息流、模擬圖預覽元件"),
         ("Session 管理 + 訂單草稿 API", "Session 持久化、訂單 JSON schema、後端 API"),
     ]
-    for i, (name, desc) in enumerate(phase_b):
-        _write_item_row(ws, 20 + i, name, desc)
-    _phase_subtotal(ws, 24, "Phase B 階段小計", 20, 23)
-
-    # Phase C: rows 25 (header), 26-31 (items), 32 (subtotal)
-    _phase_header(ws, 25, "──── W5-W6  Phase C：進階功能 + UAT + 教育訓練 ────")
     phase_c = [
         ("圖檔上傳解析", "LLM Vision 串接、設計稿色數與尺寸建議"),
         ("AI 模擬圖生成", "Image Gen API 串接、貼標情境圖輸出"),
@@ -178,9 +164,41 @@ def build_workbook(out_path: Path) -> None:
         ("UAT 支援 + 上線部署", "Bug 修正、上線切換、煙霧測試"),
         ("教育訓練與文件交付", "業務操作訓練（1 小時）、技術交接文件"),
     ]
+
+    # Compute row positions from item list lengths so that adding items
+    # to any phase automatically updates all downstream row references.
+    PHASE_A_HEADER_ROW = 13
+    phase_a_first    = PHASE_A_HEADER_ROW + 1                 # 14
+    phase_a_last     = phase_a_first + len(phase_a) - 1       # 17
+    phase_a_subtotal = phase_a_last + 1                        # 18
+
+    PHASE_B_HEADER_ROW = phase_a_subtotal + 1                  # 19
+    phase_b_first    = PHASE_B_HEADER_ROW + 1                  # 20
+    phase_b_last     = phase_b_first + len(phase_b) - 1        # 23
+    phase_b_subtotal = phase_b_last + 1                        # 24
+
+    PHASE_C_HEADER_ROW = phase_b_subtotal + 1                  # 25
+    phase_c_first    = PHASE_C_HEADER_ROW + 1                  # 26
+    phase_c_last     = phase_c_first + len(phase_c) - 1        # 31
+    phase_c_subtotal = phase_c_last + 1                        # 32
+
+    # Phase A: header, items, subtotal
+    _phase_header(ws, PHASE_A_HEADER_ROW, "──── W1-W2  Phase A：基礎架構 + DB Schema + AP Server 部署 ────")
+    for i, (name, desc) in enumerate(phase_a):
+        _write_item_row(ws, phase_a_first + i, name, desc)
+    _phase_subtotal(ws, phase_a_subtotal, "Phase A 階段小計", phase_a_first, phase_a_last)
+
+    # Phase B: header, items, subtotal
+    _phase_header(ws, PHASE_B_HEADER_ROW, "──── W3-W4  Phase B：核心對話流 + Odin 工作流建置 ────")
+    for i, (name, desc) in enumerate(phase_b):
+        _write_item_row(ws, phase_b_first + i, name, desc)
+    _phase_subtotal(ws, phase_b_subtotal, "Phase B 階段小計", phase_b_first, phase_b_last)
+
+    # Phase C: header, items, subtotal
+    _phase_header(ws, PHASE_C_HEADER_ROW, "──── W5-W6  Phase C：進階功能 + UAT + 教育訓練 ────")
     for i, (name, desc) in enumerate(phase_c):
-        _write_item_row(ws, 26 + i, name, desc)
-    _phase_subtotal(ws, 32, "Phase C 階段小計", 26, 31)
+        _write_item_row(ws, phase_c_first + i, name, desc)
+    _phase_subtotal(ws, phase_c_subtotal, "Phase C 階段小計", phase_c_first, phase_c_last)
 
     # ── [C] Phase 2 ──
     _section_header(ws, 34, "[C] Phase 2 進階模組（另行報價，不計入本次總價）")
@@ -205,7 +223,7 @@ def build_workbook(out_path: Path) -> None:
     _section_header(ws, 38, "[D] 一次性 POC 導入服務 加總")
 
     ws["A39"] = "一次性導入服務小計（未稅）"
-    ws["E39"] = "=E18+E24+E32"
+    ws["E39"] = f"=E{phase_a_subtotal}+E{phase_b_subtotal}+E{phase_c_subtotal}"
     ws["A39"].font = Font(name=FONT_NAME, size=11, bold=True)
     ws["E39"].font = Font(name=FONT_NAME, size=11, bold=True)
     _money_format(ws["E39"])
