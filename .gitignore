@@ -1,0 +1,8 @@
+# Generated build artefacts (mermaid → SVG/PNG/PDF, screenshots, compiled PDF)
+output/
+
+# Playwright MCP scratch directory (per-session snapshots & screenshots)
+.playwright-mcp/
+
+# macOS metadata
+.DS_Store
